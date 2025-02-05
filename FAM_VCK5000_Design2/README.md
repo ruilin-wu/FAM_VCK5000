@@ -18,74 +18,12 @@ This project is the second implementation of the FAM algorithm in the AI ​​E
 
 ## Before You Begin
 
-This tutorial can be run on the [VCK5000 Board](https://www.xilinx.com/products/boards-and-kits/vck5000.html)
+This tutorial can be run on the [VCK5000 Board](https://www.xilinx.com/products/boards-and-kits/vck5000.html).
+
 By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` platform for VCK5000. You can try to compile the [Xilinx tutorial project](https://github.com/Xilinx/xup_aie_training/tree/main/sources/vadd_lab) before compiling this project.
 
-### *Documentation*: Explore AI Engine Architecture
 
-* [AM009 AI Engine Architecture Manual](https://docs.amd.com/r/en-US/am009-versal-ai-engine/Revision-History)
-
-* [AI Engine Documentation](https://docs.amd.com/v/u/en-US/ug1416-vitis-documentation)
-
-### *Tools*: Installing the Tools
-
-1. Obtain a license to enable beta devices in AMD tools (to use the VCK190 platform).
-2. Obtain licenses for AI Engine tools.
-3. Follow the instructions for the [Vitis Software Platform Installation](https://docs.amd.com/r/en-US/ug1393-vitis-application-acceleration/Vitis-Software-Platform-Installation) and ensure you have the following tools:
-
-      * [Vitis™ Unified Software Development Platform 2024.1](https://docs.amd.com/v/u/en-US/ug1416-vitis-documentation)
-      * [Xilinx® Runtime and Platforms (XRT)](https://docs.amd.com/r/en-US/ug1393-vitis-application-acceleration/Installing-Xilinx-Runtime-and-Platforms)
-      * [Embedded Platform VCK190 Base or VCK190 Base](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-platforms.html)
-
-### *Environment*: Setting Up Your Shell Environment
-When the elements of the Vitis software platform are installed, update the shell environment script. Set the necessary environment variables to your system specific paths for xrt, platform location, and AMD tools.
-
-1. Edit the `sample_env_setup.sh` script with your file paths:
-
-```bash
-export PLATFORM_REPO_PATHS=<user-path>
-export COMMON_IMAGE_VERSAL=$PLATFORM_REPO_PATHS/sw/versal/xilinx-versal-common-v<ver>
-export XILINX_VITIS = <XILINX-INSTALL-LOCATION>/Vitis/<ver>
-export PLATFORM=xilinx_vck190_base_<ver> #or xilinx_vck190_es1_base_<ver> is using an ES1 board
-export DSPLIB_VITIS=<Path to Vitis Libs - Directory>
-
-
-source $(XILINX_VITIS)/settings64.sh
-source $(COMMON_IMAGE_VERSAL)/environment-setup-cortexa72-cortexa53-xilinx-linux
-
-```
-2. Source the environment script:
-
-```bash
-source sample_env_setup.sh
-```  
-
-### *Validation*: Confirming Tool Installation
-
-Ensure you are using the 2024.1 version of the AMD tools.
-
-```bash
-which vitis
-which aiecompiler
-```
-
-## Goals of this Tutorial
-### HPC Applications
-The goal of this tutorial is to create a general-purpose floating point accelerator for HPC applications. This tutorial demonstrates a x24,800 performance improvement using the AI Engine accelerator over the naive C++ implementation on the A72 embedded Arm® processor.
-
-#### A similar accelerator example was implemented on the AMD UltraScale+™-based Ultra96 device using only PL resources [here](https://www.hackster.io/rajeev-patwari-ultra96-2019/ultra96-fpga-accelerated-parallel-n-particle-gravity-sim-87f45e).
-
-
-|Name|Hardware|Algorithm Complexity|Average Execution Time to Simulate 12,800 Particles for 1 Timestep (seconds)|
-|---|---|--|---|
-|Python N-Body Simulator|x86 Linux Machine|O(N)|14.96|
-|C++ N-Body Simulator|A72 Embedded Arm Processor|O(N<sup>2</sup>)|123.236|
-|AI Engine N-Body SImulator|Versal AI Engine IP|O(N)|0.007|
-
-### PL Data-Mover Kernels
-Another goal of this tutorial is to showcase how to generate PL Data-Mover kernels from the [AMD Vitis Utility Library](https://docs.amd.com/r/en-US/Vitis_Libraries/utils/datamover/kernel_gen_guide.html). These kernels moves any amount of data from DDR buffers to AXI-Streams.  
-
-## The N-Body Problem
+## The FFT Accumulation Method
 The N-Body problem is the problem of predicting the motions of a group of N objects which each have a gravitational force on each other. For any particle `i` in the system, the summation of the gravitational forces from all the other particles results in the acceleration of particle `i`. From this acceleration, we can calculate a particle's velocity and position (`x y z vx vy vz`) will be in the next timestep. Newtonian physics describes the behavior of very large bodies/particles within our universe. With certain assumptions, the laws can be applied to bodies/particles ranging from astronomical size to a golf ball (and even smaller).
 
 #### 12,800 Particles simulated on a 400 tile AI Engine accelerator for 300 timesteps
