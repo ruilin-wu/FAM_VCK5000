@@ -51,8 +51,10 @@ $$
 
 ### Explanation
 
-- $ g_c(n) $: A data-tapering window, often a unit-height rectangle (no multiplications needed).
-- **\( a(r) \)**: A tapering window, commonly a Hamming window (can be generated using MATLAB’s `hamming.m`).
+---
+
+- <code>g<sub>c</sub>(n)</code>: A data-tapering window, often a unit-height rectangle (no multiplications needed).
+- **<code>a(r)</code>**: A tapering window, commonly a Hamming window (can be generated using MATLAB’s `hamming.m`).
 
 The **sampling rate** is defined as:
 
@@ -62,19 +64,19 @@ $$
 
 In Equations (2) and (3), the following relationships hold:
 
-- \( T = N' T_s \)
-- The channelizer's short-time Fourier transforms use a tapering window \( a(r) \) of width \( T_s N' \).
-- The output long-time Fourier transform applies \( g_c(r) \), spanning \( NT_s \), the data block's length.
+- <code>T = N' T<sub>s</sub></code>
+- The channelizer's short-time Fourier transforms use a tapering window <code>a(r)</code> of width <code>T<sub>s</sub> N'</code>.
+- The output long-time Fourier transform applies <code>g<sub>c</sub>(r)</code>, spanning <code>N T<sub>s</sub></code>, the data block's length.
 
 ### FAM Channelization
 
-The FAM channelizes input data using short Fourier transforms of length \( N' \), hopped in time by \( L \) samples. This results in a sequence of transforms with length:
+The FAM channelizes input data using short Fourier transforms of length <code>N'</code>, hopped in time by <code>L</code> samples. This results in a sequence of transforms with length:
 
 $$
 P = \frac{N}{L} \quad (4)
 $$
 
-*Assumption*: Both \( N \) and \( L \) are dyadic integers, with \( L \ll N \).
+*Assumption*: Both <code>N</code> and <code>L</code> are dyadic integers, with <code>L ≪ N</code>.
 
 ### Cycle-Frequency Resolution
 
