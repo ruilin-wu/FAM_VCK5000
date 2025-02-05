@@ -30,8 +30,8 @@ By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` pla
 The FFT Accumulation Method (FAM) produces a large number of point estimates of the cross-spectral correlation function. As described in [R4], the point estimates are given by:
 
 $$
-S_{xy_T}^{\alpha_i + q\Delta\alpha}(rL, f_j)_{\Delta t} = \sum_{r} X_T(rL, f_k) Y_T^*(rL, f_l) g_c(n - r) e^{-i 2 \pi \frac{r q}{P}}
-\quad (1)
+S_{xy_T}^{\alpha_i + q\Delta\alpha}(rL, f_j)_{\Delta t} = 
+\sum_{r} X_T(rL, f_k) Y_T^*(rL, f_l) g_c(n - r) e^{-i 2 \pi \frac{r q}{P}} \quad (1)
 $$
 
 where the complex demodulates are defined as:
