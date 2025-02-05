@@ -108,21 +108,22 @@ The FAM algorithm implementation is implemented on a VCK5000 board. It consists 
 
 #### Data Flow
 * The host application stores the input data (8 txt files) in global memory (DDR) and opens the PL HLS core (running at 500MHz) and the AI ​​engine graph (running at 1GHz).
-* Data is moved from DDR to the multi-channel HLS data mover core 'dma_hls'.
+* Data is moved from DDR to the multi-channel HLS data mover core `dma_hls`.
 
-* The AI ​​engine graph sends the input data to the 8 FAMDataIn_ ports in the AI ​​engine. The 8 FAMDataIn_ ports connect to the 4 cores that handle the first stage of the FAM algorithm (windowing + downconversion + 256 pt FFT). These 4 cores will connect to the 2 cores that will hold the final results of the first stage.
+* The AI ​​engine graph sends the input data to the 8 `FAMDataIn_i` ports in the AI ​​engine. The 8 `FAMDataIn_i` ports connect to the 4 cores that handle the first stage of the FAM algorithm (windowing + downconversion + 256 pt FFT). These 4 cores will connect to the 2 cores that will hold the final results of the first stage.
 * These 2 cores will be used to broadcast data to the 128 cores that handle the second stage of the FAM algorithm (Conjugate multiplication + 32pt FFT) and send the results out of the AI ​​Engine graph.
 
 * The `dma_hls` 128-channel HLS data mover core receives the `FAMOut_i` data and writes it to the global memory (DDR). Here, the data movement switches from AXI-Stream to AXI-MM.
+
 * Then, depending on the host application, the new output data is read and compared to the expected data, and the AI ​​Engine will run another time step.
 
 *Note:* The entire design is a compute-bound problem, which means we are limited by the speed at which the AI ​​Engine tiles can compute. This is not a memory-bound design.
 
 ## Where We're Headed ...  
-Complete modules 01-07 in the following order:
+Complete modules 01-05 in the following order:
 
 ### Module 01 - Python Simulations on x86
-The module shows a python implementation of the N-Body Simulator and execution times to run the N-Body Simulator on an x86 machine.
+The module shows a matlab implementation of the FAM and execution times to run the FAM on an x86 machine.
 
 [Read more ...](Module_01_python_sims)
 

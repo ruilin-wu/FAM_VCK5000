@@ -1,14 +1,23 @@
 function verify_func()
-% Set sampling rate fs, frequency resolution df, and cyclic frequency resolution dalpha
-fs = 1000; df = 5; dalpha = 0.5; %df 5 10 2.5 dalpha 0.5 1 0.25
-bit.input = 26;
-bit.windowing = 26;
-bit.firstFFT = 26;
-bit.ConjMulti = 26;
-bit.secondFFT = 26;
-result=autofamv4_M1(fs,df,dalpha,bit);
-save_final_result_to_files(result);
+    % Set sampling rate fs, frequency resolution df, and cyclic frequency resolution dalpha
+    fs = 1000; df = 5; dalpha = 0.5; % df 5 10 2.5, dalpha 0.5 1 0.25
+    bit.input = 26;
+    bit.windowing = 26;
+    bit.firstFFT = 26;
+    bit.ConjMulti = 26;
+    bit.secondFFT = 26;
+    
+    % Count time
+    f = @() autofamv4_M1(fs, df, dalpha, bit);
+    elapsed_time = timeit(f); 
+    
+    fprintf('Execution time: %.3f ms\n', elapsed_time * 1e3); 
+    
+    result = autofamv4_M1(fs, df, dalpha, bit);
+    save_final_result_to_files(result);
 end
+
+
 
 function result=autofamv4_M1(fs,df,dalpha,bitInput)
 %   AUTOFAM(X,FS,DF,DALPHA) computes the spectral auto-
