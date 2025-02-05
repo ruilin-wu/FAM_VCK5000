@@ -26,9 +26,9 @@ By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` pla
 ## The FFT Accumulation Method
 The N-Body problem is the problem of predicting the motions of a group of N objects which each have a gravitational force on each other. For any particle `i` in the system, the summation of the gravitational forces from all the other particles results in the acceleration of particle `i`. From this acceleration, we can calculate a particle's velocity and position (`x y z vx vy vz`) will be in the next timestep. Newtonian physics describes the behavior of very large bodies/particles within our universe. With certain assumptions, the laws can be applied to bodies/particles ranging from astronomical size to a golf ball (and even smaller).
 
-# FFT Accumulation Method (FAM)
 
-## Definition
+
+### Definition
 
 The FFT Accumulation Method (FAM) produces a large number of point estimates of the cross-spectral correlation function. As described in [R4], the point estimates are given by:
 
