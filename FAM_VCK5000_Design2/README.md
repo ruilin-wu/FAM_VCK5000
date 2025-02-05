@@ -1,35 +1,25 @@
-﻿<table class="sphinxhide" width="100%">
- <tr width="100%">
-    <td align="center"><img src="https://raw.githubusercontent.com/Xilinx/Image-Collateral/main/xilinx-logo.png" width="30%"/><h1>AMD Versal™ Adaptive SoC AI Engine Tutorials</h1>
-    <a href="https://www.xilinx.com/products/design-tools/vitis.html">See AMD Vitis™ Development Environment on xilinx.com</br></a>
-    <a href="https://www.xilinx.com/products/design-tools/vitis/vitis-ai.html">See AMD Vitis™ AI Development Environment on xilinx.com</a>
-    </td>
- </tr>
-</table>
 
-# N-Body Simulator
 
-***Version: Vitis 2024.1***
+# The second design of FFT Accumulation Method using VCK5000 Versal Development Card
+
+***Version: Vitis 2022.2***
 
 ## Introduction
 
-This tutorial is an implementation of an N-Body Simulator in the AI Engine. It is a system-level design that uses the AI Engine, PL, and PS resources to showcase the following features:
+This project is the second implementation of the FAM algorithm in the AI ​​Engine. It is a system-level design that uses AI Engine, PL, and PS resources to demonstrate the following capabilities:
 
-* A Python model of an N-Body Simulator run on x86 machine
-* A scalable AI Engine design that can utilize up to 400 AI Engine tiles
-* AI Engine packet switching
-* AI Engine single-precision floating point calculations
-* AI Engine 1:400 broadcast streams
-* Codeless PL HLS datamover kernels from the AMD Vitis™ Utility Library
-* PL HLS packet switching kernels
-* PS Host Application that validates the data coming out of the AI Engine design
-* C++ model of an N-Body Simulator
-* Performance comparisons between Python x86, C++ Arm A72, and AI Engine N-Body Simulators
-* Effective throughput calculation (GFLOPS) vs. Theoretical peak throughput of AI Engine
+* Simulation of FAM using matlab software on an x86 machine.
+* Scalable AI Engine design that can utilize up to 134 AI Engine tiles
+* AI Engine single-precision cfloat computation
+* Code-free PL HLS data mover kernel from AMD Vitis™ utility library
+* Host application for verifying AI Engine design data
+* Matlab model of the FAM algorithm
+* Effective throughput computation (GFLOPS) and throughput
 
 ## Before You Begin
 
-This tutorial can be run on the [VCK190 Board](https://www.xilinx.com/products/boards-and-kits/vck190.html) (Production or ES). If you have already purchased this board, download the necessary files from the lounge and ensure you have the correct licenses installed. If you do not have a board, get in touch with your AMD sales contact.
+This tutorial can be run on the [VCK5000 Board](https://www.xilinx.com/products/boards-and-kits/vck5000.html)
+By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` platform for VCK5000. You can try to compile the [Xilinx tutorial project](https://github.com/Xilinx/xup_aie_training/tree/main/sources/vadd_lab) before compiling this project.
 
 ### *Documentation*: Explore AI Engine Architecture
 
