@@ -140,14 +140,14 @@ This module presents the final 134 tile AI Engine design:
 This modules presents the PL HLS kernels:
 
 * Create datamover PL HLS kernels from AMD Vitis Utility Library
-* Create and simulate packet switching PL HLS kernels
 
-[Read more...](Module_03_pl_kernels)
 
-### Module 04 - Full System Design
-This module shows how to link the AI Engine design and PL kernels together into a single XCLBIN and view the actual hardware implementation Vivado™ solution.
+[Read more...](Module_03_pl)
 
-[Read more...](Module_04_xclbin)
+### Module 04 - Hardware Link
+This module shows how to link the AI Engine design and PL kernels together.
+
+[Read more...](Module_04_hw_link)
 
 ### Module 05 - Host Software
 This module presents the host software that enables the entire design:
@@ -155,32 +155,10 @@ This module presents the host software that enables the entire design:
 * Create a C++ N-Body Simulator to profile and compare performance between the A72 processor and AI Engine
 * Create a host application that runs the system design for multiple timesteps and create animation data for post-processing
 
-[Read more...](Module_05_host_sw)
+[Read more...](Module_05_host)
 
-### Module 06 - SD Card and Hardware Run
-This module conducts the hardware run:
-* Create the `sd_card.img`
-* Execute the host applications and runs the system design on hardware
-* Save animation data from hardware run
 
-[Read more...](Module_06_sd_card_and_hw_run)
-
-### Module 07 - Results  
-This module review the results of the hardware run:
-* Create an animation for 12,800 particle for 300 timesteps
-* Compare latency results between Python x86, C++ Arm A72, and AI Engine N-Body Simulator designs
-* Estimate the number of GFLOPS of the design
-* Explore ways to increase design bandwidth
-
-[Read more...](Module_07_results)
-
-### (Optional) x1_design and x10_design  
-This tutorial contains 3 AI Engine designs:
-* x100_design (100 Compute Units using all 400 AI Engine tiles)
-* x10_design (10 Compute Units using 40 AI Engine tiles)
-* x1_design (1 Compute Unit using 4 AI Engine tiles)
-
-Modules_01-07 builds walks through building the final 100 Compute Unit design. The intermediate designs (x1_design and x10_design) are also provided if you want to build an N-Body Simulator with shorter build times or run hardware emulation within a reasonable amount of time.  
+Modules_01-05 builds walks through building the final 100 Compute Unit design. The intermediate designs (x1_design and x10_design) are also provided if you want to build an N-Body Simulator with shorter build times or run hardware emulation within a reasonable amount of time.  
 
 ## Build Flows
 This tutorial has two build flows you can choose from depending on your comfort level with AMD design processes.  
