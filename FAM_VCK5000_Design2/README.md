@@ -51,7 +51,7 @@ $$
 
 ### Explanation
 
-- \( g_c(n) \): A data-tapering window, often a unit-height rectangle (no multiplications needed).
+- $$ g_c(n) $$: A data-tapering window, often a unit-height rectangle (no multiplications needed).
 - **\( a(r) \)**: A tapering window, commonly a Hamming window (can be generated using MATLAB’s `hamming.m`).
 
 The **sampling rate** is defined as:
