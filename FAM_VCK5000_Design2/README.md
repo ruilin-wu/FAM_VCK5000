@@ -1,9 +1,10 @@
-# Versal-based Implementation of SSCA
+# Versal-based Implementation of FAM
+This is the second design of the FAM algorithm implementation using the VCK5000 Versal Development Card.
 By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` platform for VCK5000. 
 
 ## Dependencies 
 This project requires: AMD/Xilinx Versal VCK5000 (`xilinx_vck5000_gen4x8_qdma_2_202220_1`, Vitis 2022.2-2023.1)
-
+[Xilinx AIE Training - vadd_lab](https://github.com/Xilinx/xup_aie_training/tree/main/sources/vadd_lab)
 ## Guide
 ### 1. Make bitstream and host for project
 ```bash
