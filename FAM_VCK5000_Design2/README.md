@@ -123,17 +123,16 @@ The FAM algorithm implementation is implemented on a VCK5000 board. It consists 
 Complete modules 01-05 in the following order:
 
 ### Module 01 - Python Simulations on x86
-The module shows a matlab implementation of the FAM and execution times to run the FAM on an x86 machine.
+The module shows a matlab implementation of the FAM and execution time to run the FAM on an x86 machine.
 
-[Read more ...](Module_01_python_sims)
+[Read more ...](Module_01_matlab_sim)
 
 ### Module 02 - AI Engine Design
-This module presents the final 400 tile AI Engine design:
+This module presents the final 134 tile AI Engine design:
 
-  * A single AI Engine kernel (`nbody()`)
-  * An N-Body Subsystem with 4 `nbody()` kernels which are packet switched (`nbody_subsystem` graph)
-  * An N-Body System with 100 `nbody_subsystem` graphs (i.e., 400 `nbody()` kernels) which use all 400 AI Engine tile resources
-  * Invoke the AI Engine compiler
+    * The `stage1_graph_x2` system with 4 `fam_stage1()` cores and 2 `conv_stage1()` cores is used to calculate and store the results of the first stage
+    * The `stage2_graph_x128` system with 128 `fam_stage2()` cores is used to receive data from the first stage and output data from the second stage
+    * Calling the AI ​​Engine Compiler
 
 [Read more...](Module_02_aie)
 
