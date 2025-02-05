@@ -104,21 +104,19 @@ $$
 Source: [GCSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
 
 ### System Design Overview
-The N-Body Simulator is implemented on an `XCVC1902 AMD Versal Adaptive SoC` device on the VCK190 board. It consists of PL HLS datamover kernels from the AMD Vitis Utility Library (`mm2s_mp` and `s2mm_mp`), custom HLS kernels that enable packet switching (`packet_sender` and `packet_receiver`), and a 400 tile AI Engine design. Additionaly, the design consists of host applications that enable the entire design, verify the data coming out of the AI Engine, and run the design for multiple timesteps.
+The FAM algorithm implementation is implemented on a VCK5000 board. It consists of a PL HLS data mover core (`dma_hls`) from the AMD Vitis utility library, and a 134-tile AI engine design. In addition, the design includes a host application that supports the entire design, verifies the data output by the AI ​​engine, and runs the design for multiple time steps.
 
-![alt text](images/System_diagram.PNG)
+#### Data Flow
+* The host application stores the input data (8 txt files) in global memory (DDR) and opens the PL HLS core (running at 500MHz) and the AI ​​engine graph (running at 1GHz).
+* Data is moved from DDR to the multi-channel HLS data mover core 'dma_hls'.
 
-#### Dataflow
-* The host applications store input data (`i` and `j`) in global memory (DDR) and turn on the PL HLS kernels (running at 300 MHz) and the AI Engine graph (running at 1GHz).
-* Data moves from DDR to the dual-channel HLS datamover kernel `mm2s_mp`. The `i` data goes into one channel and the `j` data goes into the other channel. Here, data movement switches from AXI-MM to AXI-Stream. The read/write bandwith of DDR is set to the default 0.04 Gbps.
-* The AI Engine graph performs packet switching on the `input_i` data, so the `i` data needs to be packaged appropriately before being sent to the AI Engine. So from the `mm2s_mp` kernel, it is streamed to the HLS `packet_sender` kernel. The `packet_sender` kernel sends a packet header and appropriately asserts `TLAST` before sending packets of `i` data to the 100 `input_i` ports in the AI Engine.
-* The AI Engine graph expects the `j` data to be streamed directly into the AI Engine kernels, so no additional packaging is needed. The `j` data is directly streamed from the `mm2s_mp` kernel into the AI Engine.  
-* The AI Engine distributes the gravity equation computations onto 100 accelerators (each using 4 AI Engine tiles). The AI Engine graph outputs new `i` data through the 100 `output_i` ports. The `output_i` data is also packet switched and needs to be appropriately managed by the `packet_receiver`.
-* The `packet_receiever` kernel receives a packet and evaluates the header as 0, 1, 2, or 3 and appropriately sends the `output_i` data to the `k0`, `k1`, `k2`, or `k3` streams.
-* The `s2mm_mp` quad-channel HLS datamover kernel receives the `output_i` data and writes it to global memory (DDR). Here, data movement switches from AXI-Stream to AXI-MM.
-* Then, depending on the host application, the new output data is read and compared against the golden expected data or saved as the next iteration of `i` data and the AI Engine N-Body Simulator runs for another timestep.
+* The AI ​​engine graph sends the input data to the 8 FAMDataIn_ ports in the AI ​​engine. The 8 FAMDataIn_ ports connect to the 4 cores that handle the first stage of the FAM algorithm (windowing + downconversion + 256 pt FFT). These 4 cores will connect to the 2 cores that will hold the final results of the first stage.
+* These 2 cores will be used to broadcast data to the 128 cores that handle the second stage of the FAM algorithm (Conjugate multiplication + 32pt FFT) and send the results out of the AI ​​Engine graph.
 
-*Note:* The entire design is a compute-bound problem, meaning we are limited to how fast the AI Engine tiles compute the floating-point gravity equations. This is not a memory-bound design.
+* The `dma_hls` 128-channel HLS data mover core receives the `FAMOut_i` data and writes it to the global memory (DDR). Here, the data movement switches from AXI-Stream to AXI-MM.
+* Then, depending on the host application, the new output data is read and compared to the expected data, and the AI ​​Engine will run another time step.
+
+*Note:* The entire design is a compute-bound problem, which means we are limited by the speed at which the AI ​​Engine tiles can compute. This is not a memory-bound design.
 
 ## Where We're Headed ...  
 Complete modules 01-07 in the following order:
