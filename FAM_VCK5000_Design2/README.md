@@ -51,8 +51,6 @@ $$
 
 ### Explanation
 
----
-
 - <code>g<sub>c</sub>(n)</code>: A data-tapering window, often a unit-height rectangle (no multiplications needed).
 - **<code>a(r)</code>**: A tapering window, commonly a Hamming window (can be generated using MATLAB’s `hamming.m`).
 
@@ -102,9 +100,8 @@ $$
 f_j = \frac{f_k + f_l}{2} \quad (7)
 $$
 
----
 
-Source: [GRAPE-6: Massively-Parallel Special-Purpose Computer for Astrophysical Particle Simulations](https://academic.oup.com/pasj/article/55/6/1163/2056223)
+Source: [GCSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
 
 ### System Design Overview
 The N-Body Simulator is implemented on an `XCVC1902 AMD Versal Adaptive SoC` device on the VCK190 board. It consists of PL HLS datamover kernels from the AMD Vitis Utility Library (`mm2s_mp` and `s2mm_mp`), custom HLS kernels that enable packet switching (`packet_sender` and `packet_receiver`), and a 400 tile AI Engine design. Additionaly, the design consists of host applications that enable the entire design, verify the data coming out of the AI Engine, and run the design for multiple timesteps.
