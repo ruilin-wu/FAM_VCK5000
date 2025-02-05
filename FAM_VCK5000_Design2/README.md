@@ -122,7 +122,7 @@ The FAM algorithm implementation is implemented on a VCK5000 board. It consists 
 ## Where We're Headed ...  
 Complete modules 01-05 in the following order:
 
-### Module 01 - Python Simulations on x86
+### Module 01 - Matlab Simulations on x86
 The module shows a matlab implementation of the FAM and execution time to run the FAM on an x86 machine.
 
 [Read more ...](Module_01_matlab_sim)
