@@ -27,7 +27,7 @@ By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` pla
 
 ### Definition
 
-The FFT Accumulation Method (FAM) produces a large number of point estimates of the cross-spectral correlation function. As described in [R4], the point estimates are given by:
+The FFT Accumulation Method (FAM) produces a large number of point estimates of the cross-spectral correlation function. The point estimates are given by:
 
 $$
 S_{xy_T}^{\alpha_i + q\Delta\alpha}(rL, f_j)_{\Delta t} = 
@@ -51,7 +51,7 @@ $$
 
 ### Explanation
 
-- **\( g_c(n) \)**: A data-tapering window, often a unit-height rectangle (no multiplications needed).
+- \( g_c(n) \): A data-tapering window, often a unit-height rectangle (no multiplications needed).
 - **\( a(r) \)**: A tapering window, commonly a Hamming window (can be generated using MATLAB’s `hamming.m`).
 
 The **sampling rate** is defined as:
@@ -101,10 +101,6 @@ f_j = \frac{f_k + f_l}{2} \quad (7)
 $$
 
 ---
-
-### 📚 References
-- [R4] Reference for detailed derivation and theoretical background.
-
 
 Source: [GRAPE-6: Massively-Parallel Special-Purpose Computer for Astrophysical Particle Simulations](https://academic.oup.com/pasj/article/55/6/1163/2056223)
 
