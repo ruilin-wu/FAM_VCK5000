@@ -4,7 +4,8 @@ By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` pla
 
 ## Dependencies 
 This project requires: AMD/Xilinx Versal VCK5000 (`xilinx_vck5000_gen4x8_qdma_2_202220_1`, Vitis 2022.2-2023.1)
-[Xilinx AIE Training - vadd_lab](https://github.com/Xilinx/xup_aie_training/tree/main/sources/vadd_lab)
+You can try to compile this project（[Xilinx AIE Training - vadd_lab](https://github.com/Xilinx/xup_aie_training/tree/main/sources/vadd_lab)）to make sure you can compile my design
+
 ## Guide
 ### 1. Make bitstream and host for project
 ```bash
