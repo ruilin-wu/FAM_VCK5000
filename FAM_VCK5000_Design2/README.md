@@ -26,59 +26,84 @@ By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` pla
 ## The FFT Accumulation Method
 The N-Body problem is the problem of predicting the motions of a group of N objects which each have a gravitational force on each other. For any particle `i` in the system, the summation of the gravitational forces from all the other particles results in the acceleration of particle `i`. From this acceleration, we can calculate a particle's velocity and position (`x y z vx vy vz`) will be in the next timestep. Newtonian physics describes the behavior of very large bodies/particles within our universe. With certain assumptions, the laws can be applied to bodies/particles ranging from astronomical size to a golf ball (and even smaller).
 
-#### 12,800 Particles simulated on a 400 tile AI Engine accelerator for 300 timesteps
+# FFT Accumulation Method (FAM)
 
-![alt text](Module_07_results/images/animation.gif)
+## Definition
 
-The colormap simulates the Red Shift effect in astronomy. When the particles are red, they are farther away in space (`-z` direction). When the particles are blue, they are closer to you in space (`+z` direction).
+The FFT Accumulation Method (FAM) produces a large number of point estimates of the cross-spectral correlation function. As described in [R4], the point estimates are given by:
 
-### Newton's Second Law of Motion
-Newton's Second Law motion in mathmatical form states the force on body i equals its mass times acceleration.
+$$
+S_{xy_T}^{\alpha_i + q\Delta\alpha} (rL, f_j)_{\Delta t} = \sum_{r} X_T(rL, f_k) Y_T^* (rL, f_l) g_c(n - r) e^{-i2\pi r q / P} \quad (1)
+$$
 
-![alt text](images/newtons_second_law_eq.PNG)
+where the complex demodulates are defined as:
 
-### Gravity Equations - Two Bodies
-When the force on body i is caused by its gravitational attraction to body j, that force is calculated by the following gravity equation:
+$$
+X_T(n, f) = \sum_{r = -N'/2}^{N'/2} a(r) x(n - r) e^{-i 2 \pi f (n - r) T_s} \quad (2)
+$$
 
-![alt text](images/bodys_equation.PNG)
+However, as noted in [R4], Equation (2) should be corrected to sum over \( N' \) samples instead of \( N' + 1 \):
 
-Where G is the gravitational constant, and r is the distance between body i and body j. Combining Newton's second law motion with the gravity equation gives the following equation for calculating the acceleration of body i due to body j.
+$$
+X_T(n, f) = \sum_{r = -N'/2}^{N'/2 - 1} a(r) x(n - r) e^{-i 2 \pi f (n - r) T_s} \quad (3)
+$$
 
-![alt text](images/acc_equation_2_bodies.PNG)
+### Explanation
 
-We multiply by the unit vector of r to maintain the direction of the force.
+- **\( g_c(n) \)**: A data-tapering window, often a unit-height rectangle (no multiplications needed).
+- **\( a(r) \)**: A tapering window, commonly a Hamming window (can be generated using MATLAB’s `hamming.m`).
 
-If given an initial velocity (v<sub>t</sub>) and position (x<sub>t</sub>), we can calculate our particle's new position, acceleration, and velocity in the next timestep (t+1).
+The **sampling rate** is defined as:
 
-* Position Equation: x<sub>t+1</sub>=x<sub>t</sub>+v\*ts
-* Aceleration Equation: (from above)
-* Velocity Equation: v<sub>t+1</sub>=v<sub>t</sub>+a\*ts
+$$
+f_s = \frac{1}{T_s}
+$$
 
-### Gravity Equations - N Bodies
-Our NBody simulator will extends the above gravity equation to calcuate positions, accelerations, and velocities in the x, y, and z directions of N bodies in a system.
-For the sake of simplicity in implementation, the following assumptions were made:
+In Equations (2) and (3), the following relationships hold:
 
-1. All particles are point masses
-2. Gravitational constant G=1
-3. We use a softening factor (sf<sup>2</sup>=1000) in gravity equations to avoid errors when two point masses are at exactly same co-ordinates.
-4. The timestep constant ts=1
+- \( T = N' T_s \)
+- The channelizer's short-time Fourier transforms use a tapering window \( a(r) \) of width \( T_s N' \).
+- The output long-time Fourier transform applies \( g_c(r) \), spanning \( NT_s \), the data block's length.
 
-The N-Body Simulator will implement the following gravity equations.
+### FAM Channelization
 
-Given inital positions and velocities `x y z vx vy vz` at timestep `t`, we can calculate the new positions `x y z` of the next timestep `t+1`:
-![alt text](images/position_equations.PNG)
+The FAM channelizes input data using short Fourier transforms of length \( N' \), hopped in time by \( L \) samples. This results in a sequence of transforms with length:
 
-To calculate the acceleration in the x, y, and z directions of any particle `i` (`accxi accyi acczi`), you must sum the acceleration caused by all other particles in the system (particles `j`):
-![alt text](images/gravity_acc_equations.PNG)
+$$
+P = \frac{N}{L} \quad (4)
+$$
 
-When you have your accelerations, calculate the new velocities in the x, y, and z directions:
-![alt text](images/velocity_equations_2.PNG)
+*Assumption*: Both \( N \) and \( L \) are dyadic integers, with \( L \ll N \).
 
-Using these gravity equations, you can calculate your particles' new positions and velocities `x y z vx vy vz` at timestep `t+1` and repeat the calculations for the next timestep after. If there are a large number of particles in the system and/or you are simulating for a large number of timesteps, you will quickly see the compute intensive nature of this problem. This algorithm has a computational complexity of *O(N<sup>2</sup>)* due to the iterative nature of the process. This is a great opportunity for implementing an accelerator in hardware.
+### Cycle-Frequency Resolution
 
-In Module_01-Python Simulations on x86, you can try the `nbody.py` to see how slow the particle simulation runs in software only. The particle simulation will run much faster with accelerators implemented in hardware (AI Engine).
+Defined in normalized frequency units as:
 
-This algorithm can be vectorized, hence reducing the complexity to O(N). In our AI Engine design, we will breakdown our workload to parallelize the computation on 100 AI Engine compute units.
+$$
+\Delta \alpha = \frac{1}{N} \quad (5)
+$$
+
+### Spectral Components
+
+The point estimate is associated with:
+
+- **Cycle Frequency**:
+
+$$
+\alpha_i = f_k - f_l \quad (6)
+$$
+
+- **Spectral Frequency**:
+
+$$
+f_j = \frac{f_k + f_l}{2} \quad (7)
+$$
+
+---
+
+### 📚 References
+- [R4] Reference for detailed derivation and theoretical background.
+
 
 Source: [GRAPE-6: Massively-Parallel Special-Purpose Computer for Astrophysical Particle Simulations](https://academic.oup.com/pasj/article/55/6/1163/2056223)
 
