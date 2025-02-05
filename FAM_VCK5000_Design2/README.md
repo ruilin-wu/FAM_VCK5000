@@ -130,9 +130,9 @@ The module shows a matlab implementation of the FAM and execution time to run th
 ### Module 02 - AI Engine Design
 This module presents the final 134 tile AI Engine design:
 
-    * The `stage1_graph_x2` system with 4 `fam_stage1()` cores and 2 `conv_stage1()` cores is used to calculate and store the results of the first stage
-    * The `stage2_graph_x128` system with 128 `fam_stage2()` cores is used to receive data from the first stage and output data from the second stage
-    * Calling the AI ​​Engine Compiler
+* The `stage1_graph_x2` system with 4 `fam_stage1()` cores and 2 `conv_stage1()` cores is used to calculate and store the results of the first stage
+* The `stage2_graph_x128` system with 128 `fam_stage2()` cores is used to receive data from the first stage and output data from the second stage
+* Calling the AI ​​Engine Compiler
 
 [Read more...](Module_02_aie)
 
