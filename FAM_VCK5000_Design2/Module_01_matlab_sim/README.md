@@ -143,11 +143,7 @@ XD_beforeTranspose=XF1_shift.*E;
 ```
 Some critical aspects of the previous code are highlighted in the following:
 
-* We use `W = exp(-1 * 2j * pi * (0:N-1) / N)` to compute the FFT rotation factors.  
-  
-* A layered iterative approach is used to perform the base 2 DIT FFT butterfly computation, doubling the data block size at each layer of the butterfly operation. Then update the data layer by layer and compute the butterfly structure using the rotation factor `W`.
-
-* The FFT transformed data is deposited into `OutputSignal`, where each column corresponds to one FFT column of the input matrix.
+* WWe use `E(k + Np/2 + 1, input_index + 1) = exp(-1i * 2 * pi * k * input_index * L / Np);` to compute the complex exponential matrix `E` for down-conversion operations. The final result of this step is stored in the XD_beforeTranspose matrix.
 
 ### Conjugate Multiplication
 
