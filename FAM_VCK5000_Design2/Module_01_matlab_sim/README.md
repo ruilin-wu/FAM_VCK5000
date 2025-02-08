@@ -208,25 +208,7 @@ The 100 tile AI Engine design simulates 12,800 particles. The single tile AI Eng
 
 ## Results
 
-You should see something similar to the following execution times for the python simulation.
 
-```
-...
-test_random_x1 (__main__.PySimUnitTest)
-Sets all x,y,z,vx,vy,vz,m to be random values. ... Simulating 128 particles for 1 timestep
-Elapsed time for NBody Simulator executed in x86 machines using python is 0.019344806671142578 seconds ...
-ok
-test_random_x10 (__main__.PySimUnitTest)
-Sets all x,y,z,vx,vy,vz,m to be random values. ... Simulating 1280 particles for 1 timestep
-Elapsed time for NBody Simulator executed in x86 machines using python is 0.2165219783782959 seconds ...
-ok
-test_random_x100 (__main__.PySimUnitTest)
-Sets all x,y,z,vx,vy,vz,m to be random values. ... Simulating 12800 particles for 1 timestep
-Elapsed time for NBody Simulator executed in x86 machines using python is 14.963038682937622 seconds ...
-ok
-```
-
-Following are animations created from running the Python N-Body Simulator for 300 timesteps.
 
 | 128 Particles  | 1,280 Particles | 12,800 Particles |
 | -------------  | -------------  |-------------    |
