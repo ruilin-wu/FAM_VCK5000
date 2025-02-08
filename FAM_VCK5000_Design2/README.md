@@ -191,8 +191,7 @@ make all
 
 ## Next Steps
 
-Let's get started with running the python model of the N-Body simulator on an x86 machine in [Module 01 - Python Simulations on x86](Module_01_python_sims).
 
-
+Let’s get started with running the Matlab model of FAM on an x86 machine in [Module 01 - Matlab Simulations on x86](Module_01_matlab_sim).
 
 
