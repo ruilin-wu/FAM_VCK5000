@@ -61,7 +61,7 @@ Some critical aspects of the previous code are highlighted in the following:
 ### First FFT (256-pt)
 Each column of the windowed data array is Fast Fourier transformed to reveal the first spectral components. The resultant array is still indexed P rows by N' columns but now the column index relates to a specific bin of spectral frequencies. 
 
-The matlab of the FFT function is shown below:
+The matlab code of the FFT function is shown below:
 ```
 function OutputSignal = FFTFloatv3_M1(InputSignal)
 % FFTFloatv3_M1 performs FFT computation on single-precision floating-point data
@@ -125,7 +125,7 @@ $$
 
 The **magnitude** of the exponential is unity over the array and the **phase** exhibits considerable variation.
 
-The matlab of the Downconversion is shown below:
+The matlab code of the Downconversion is shown below:
 ```
 E=zeros(Np,P);
 a=zeros(Np,P);
@@ -161,10 +161,30 @@ $$
 $$
   f = \frac{f_k + f_e}{2} \quad (4)
 $$
-
+The matlab code of the Conjugate Multiplication is shown below:
+```
+XM=zeros(P,Np^2);
+for k=1:Np
+    for l=1:Np
+        XM(:,(k-1)*Np+l)=(XD(:,k).*conj(XD(:,l)));  % Auto-correlation
+    end
+end
+result.Multi = single(XM);
+XM = single(XM);
+```
 
 ### Second FFT (32-pt)
 
+The matlab code of the Conjugate Multiplication is shown below:
+```
+XF2=FFTFloatv3_M1(XM);
+XF2_1=fft(XM);
+XF2=fftshift(XF2,1);
+result.SecondFFT = single(XF2);
+XF2 = single(XF2);
+format long
+XF2_2=XF2(P/4+1:3*P/4, :);  % Retain central portion after trimming
+```
 ### Final Result Save (32-pt)
 
 Review the `test.py` file. Notice that it runs three unit tests: `test_random_x1`, `test_random_x10`, and `test_random_x100`. Each unit test creates two instances of the `Particles` class: `particles_i` and `particles_j`. Each `Particles` object contains arrays of floating point values for the particle positions, particle velocities, and mass (`x y z vx vy vz m`). These arrays are initalized with random values with the `setSphereInitialConditions()` function in `pylib/particles.py` file. The `x` and `y` positions are constrained to be in a sphere by invoking `cos()` and `sin()` functions. The remaining constrains are as follows:
