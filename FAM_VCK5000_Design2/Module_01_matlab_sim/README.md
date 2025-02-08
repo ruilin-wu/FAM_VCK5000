@@ -113,9 +113,9 @@ Some critical aspects of the previous code are highlighted in the following:
 ### Downconversion
 
 Each row of spectral components is downconverted to baseband through multiplication with the complex exponential:
-\[
-e^{-\frac{j2\pi kmL}{N'}}
-\]
+$$
+e^{-\frac{j2\pi kmL}{N'}} \quad (1)
+$$
 Index Definitions
 
 - **m**: Row index, 0 <= m <= P-1
@@ -139,6 +139,7 @@ for k = -Np/2:Np/2-1
         E(k + Np/2 + 1, input_index + 1) = exp(-1i * 2 * pi * k * input_index * L / Np);
     end
 end
+XD_beforeTranspose=XF1_shift.*E;
 ```
 Some critical aspects of the previous code are highlighted in the following:
 
