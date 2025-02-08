@@ -3,13 +3,35 @@
 
 ***Version: Matlab R2022a***
 
-Use MATLAB software to open test.mlx and click the Run button.
+Use MATLAB software to open `test.mlx` and click the Run button.
 
 
 ## The principle and code implementation of FAM algorithm in Matlab
 
 ### Data Input
-To match the input format in our AIE design, we store the input files in the [data_in](data_in) folder.
+To match the input format in our AIE design, we store the input files in the [data_in](data_in) folder. We assume that the files stored in the [data_in](data_in) folder are files that have been processed by Input Channelization. At this time, the time domain sampling data is neatly arranged into a two-dimensional matrix with `P`(32) rows and `N'(256) columns.
+
+We convert the data from the input file into a 256*32 (transposed for ease of subsequent FFT calculations) 2D matrix in Matlab with the following code:
+```
+% Iterate through 8 input files
+for ch = 0 : 7
+    fname = fullfile('data_in', sprintf('FAMDataIn_%d.txt', ch));
+    data  = dlmread(fname);  % Read file assuming format: real imag
+    cdata = complex(data(:,1), data(:,2));  % Convert to complex vector of length 1024
+
+    % Divide 1024 cfloat into 4 blocks (256 each), each block fills a column
+    for blk = 0 : 3
+        col_index = ch * 4 + blk + 1;  % Column index (1 to 32)
+        start_idx = blk * 256 + 1;    % Start index
+        end_idx   = (blk + 1) * 256;  % End index
+        X(:, col_index) = cdata(start_idx : end_idx);  % Fill data into matrix
+    end
+end
+```
+Some critical aspects of the previous code are highlighted in the following:
+* Each file stores 1024 single-precision complex numbers, which we divide into four 256-point chunks and compute to fill in the column indices of the matrix, resulting in a 256 × 32 matrix X with 256 complex numbers in each column.
+
+
 ### Windowing
 
 ### First FFT (256-pt)
