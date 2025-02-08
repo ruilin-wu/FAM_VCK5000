@@ -1,197 +1,147 @@
-
-
-# The second design of FFT Accumulation Method using VCK5000 Versal Development Card
-
-***Version: Vitis 2022.2***
-
-## Introduction
-
-This project is the second implementation of the FAM algorithm in the AI ​​Engine. It is a system-level design that uses AI Engine, PL, and PS resources to demonstrate the following capabilities:
-
-* Simulation of FAM using matlab software on an x86 machine.
-* Scalable AI Engine design that can utilize up to 134 AI Engine tiles
-* AI Engine single-precision cfloat computation
-* Code-free PL HLS data mover kernel from AMD Vitis™ utility library
-* Host application for verifying AI Engine design data
-* Matlab model of the FAM algorithm
-* Effective throughput computation (GFLOPS) and throughput
-
-## Before You Begin
-
-This tutorial can be run on the [VCK5000 Board](https://www.xilinx.com/products/boards-and-kits/vck5000.html).
-
-By default, this project targets the `xilinx_vck5000_gen4x8_qdma_2_202220_1` platform for VCK5000. You can try to compile the [Xilinx tutorial project](https://github.com/Xilinx/xup_aie_training/tree/main/sources/vadd_lab) before compiling this project.
-
-
-## The FFT Accumulation Method
-
-### Definition
-
-The FFT Accumulation Method (FAM) produces a large number of point estimates of the cross-spectral correlation function. The point estimates are given by:
-
-$$
-S_{xy_T}^{\alpha_i + q\Delta\alpha}(rL, f_j)_{\Delta t} = 
-$$
-
-$$
-\sum_{r} X_T(rL, f_k) Y_T^*(rL, f_l) g_c(n - r) e^{-i 2 \pi \frac{r q}{P}} \quad (1)
-$$
-
-where the complex demodulates are defined as:
-
-$$
-X_T(n, f) = \sum_{r = -N'/2}^{N'/2} a(r) x(n - r) e^{-i 2 \pi f (n - r) T_s} \quad (2)
-$$
-
-However, as noted in [R4], Equation (2) should be corrected to sum over \( N' \) samples instead of \( N' + 1 \):
-
-$$
-X_T(n, f) = \sum_{r = -N'/2}^{N'/2 - 1} a(r) x(n - r) e^{-i 2 \pi f (n - r) T_s} \quad (3)
-$$
-
-### Explanation
-
-- <code>g<sub>c</sub>(n)</code>: A data-tapering window, often a unit-height rectangle (no multiplications needed).
-- **<code>a(r)</code>**: A tapering window, commonly a Hamming window (can be generated using MATLAB’s `hamming.m`).
-
-The **sampling rate** is defined as:
-
-$$
-f_s = \frac{1}{T_s}
-$$
-
-In Equations (2) and (3), the following relationships hold:
-
-- <code>T = N' T<sub>s</sub></code>
-- The channelizer's short-time Fourier transforms use a tapering window <code>a(r)</code> of width <code>T<sub>s</sub> N'</code>.
-- The output long-time Fourier transform applies <code>g<sub>c</sub>(r)</code>, spanning <code>N T<sub>s</sub></code>, the data block's length.
-
-### FAM Channelization
-
-The FAM channelizes input data using short Fourier transforms of length <code>N'</code>, hopped in time by <code>L</code> samples. This results in a sequence of transforms with length:
-
-$$
-P = \frac{N}{L} \quad (4)
-$$
-
-*Assumption*: Both <code>N</code> and <code>L</code> are dyadic integers, with <code>L ≪ N</code>.
-
-### Cycle-Frequency Resolution
-
-Defined in normalized frequency units as:
-
-$$
-\Delta \alpha = \frac{1}{N} \quad (5)
-$$
-
-### Spectral Components
-
-The point estimate is associated with:
-
-- **Cycle Frequency**:
-
-$$
-\alpha_i = f_k - f_l \quad (6)
-$$
-
-- **Spectral Frequency**:
-
-$$
-f_j = \frac{f_k + f_l}{2} \quad (7)
-$$
-
-
-Source: [CSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
-
-### System Design Overview
-The FAM algorithm implementation is implemented on a VCK5000 board. It consists of a PL HLS data mover core (`dma_hls`) from the AMD Vitis utility library, and a 134-tile AI engine design. In addition, the design includes a host application that supports the entire design, verifies the data output by the AI ​​engine, and runs the design for multiple time steps.
-
-#### Data Flow
-* The host application stores the input data (8 txt files) in global memory (DDR) and opens the PL HLS core (running at 500MHz) and the AI ​​engine graph (running at 1GHz).
-* Data is moved from DDR to the multi-channel HLS data mover core `dma_hls`.
-
-* The AI ​​engine graph sends the input data to the 8 `FAMDataIn_i` ports in the AI ​​engine. The 8 `FAMDataIn_i` ports connect to the 4 cores that handle the first stage of the FAM algorithm (windowing + downconversion + 256 pt FFT). These 4 cores will connect to the 2 cores that will hold the final results of the first stage.
-* These 2 cores will be used to broadcast data to the 128 cores that handle the second stage of the FAM algorithm (Conjugate multiplication + 32pt FFT) and send the results out of the AI ​​Engine graph.
-
-* The `dma_hls` 128-channel HLS data mover core receives the `FAMOut_i` data and writes it to the global memory (DDR). Here, the data movement switches from AXI-Stream to AXI-MM.
-
-* Then, depending on the host application, the new output data is read and compared to the expected data, and the AI ​​Engine will run another time step.
-
-*Note:* The entire design is a compute-bound problem, which means we are limited by the speed at which the AI ​​Engine tiles can compute. This is not a memory-bound design.
-
-## Where We're Headed ...  
-Complete modules 01-05 in the following order:
-
-### Module 01 - Matlab Simulations on x86
-The module shows a matlab implementation of the FAM and execution time to run the FAM on an x86 machine.
-
-[Read more ...](Module_01_matlab_sim)
-
-### Module 02 - AI Engine Design
-This module presents the final 134 tile AI Engine design:
-
-* The `stage1_graph_x2` system with 4 `fam_stage1()` cores and 2 `conv_stage1()` cores is used to calculate and store the results of the first stage
-* The `stage2_graph_x128` system with 128 `fam_stage2()` cores is used to receive data from the first stage and output data from the second stage
-* Calling the AI ​​Engine Compiler
-
-[Read more...](Module_02_aie)
-
-### Module 03 - PL Kernels
-This modules presents the PL HLS kernels:
-
-* Create datamover PL HLS kernels from AMD Vitis Utility Library
-
-
-[Read more...](Module_03_pl)
-
-### Module 04 - Hardware Link
-This module shows how to link the AI Engine design and PL kernels together.
-
-[Read more...](Module_04_hw_link)
-
-### Module 05 - Host Software
-This module presents the host software that enables the entire design:
-* Create a functional host application that compares AI Engine output data to golden data
-* Create a C++ N-Body Simulator to profile and compare performance between the A72 processor and AI Engine
-* Create a host application that runs the system design for multiple timesteps and create animation data for post-processing
-
-[Read more...](Module_05_host)
-
-
-Modules_01-05 builds walks through building the final 134 Compute Unit design. 
-
-
-
-
-## Build Flows
-This tutorial has two build flows you can choose from depending on your comfort level with AMD design processes.  
-
-### For more advanced users
-For those who are already familiar with the creating AI Engine designs and AMD Vitis projects, you may just want to build the entire design with a single command. You can do this by running the following command from the top-level folder:
+﻿<table class="sphinxhide" width="100%">
+ <tr width="100%">
+    <td align="center"><img src="https://raw.githubusercontent.com/Xilinx/Image-Collateral/main/xilinx-logo.png" width="30%"/><h1>AMD Versal™ Adaptive SoC AI Engine Tutorials</h1>
+    <a href="https://www.xilinx.com/products/design-tools/vitis.html">See AMD Vitis™ Development Environment on xilinx.com</br></a>
+    <a href="https://www.xilinx.com/products/design-tools/vitis/vitis-ai.html">See AMD Vitis™ AI Development Environment on xilinx.com</a>
+    </td>
+ </tr>
+</table>
+
+# Build the Design
+
+*Estimated time: 2 hours*
 
 ```
-make all
+make aie
 ```
 
-### For more novice users
-
-For those who are just starting out, you may want to build each module one at time, view the output on the terminal, and learn as you work your way through the tutorial. In this case, cd into each Module folder and run the `make all` command to build just that component of the design. The specific commands `make all` runs under the hood is specificed in each Module's README.md.
-
+or
 
 ```
-cd Module_0i
-make all
+aiecompiler -v  --target=hw 					\
+                --stacksize=2000 				\
+                -include="$(XILINX_VITIS)/aietools/include" 	\
+	        -include="./" 					\
+	        -include="./src" 				\
+	        -include="../data" 				\
+	        nbody_x4_100.cpp 				\
+	        -workdir=work
 ```
 
+## AI Engine Design
+
+The following AI Engine features are used in this design:
+
+* single precision floating-point compute of the N-Body gravity equations on 12,800 particles
+* 400 tile design with 400 parallel accelerators
+* 1:400 broadcast stream
+* 1:4 packet split
+* 4:1 packet merge
+* PL Kernels designed to support packet switching in AI Engine
+
+## A Single Nbody() Kernel
+
+Review the `src/nbody.cc` file. It contains the implementation of a single AI Engine kernel mapped to a single AI Engine tile called `nbody()`. This kernel takes in the `x y z vx vy vz m` values for 32 particles, computes the N-Body gravity equations for a single timestep, and outputs the new `x y z vx vy vz m` values for the 32 particles. This kernel takes in two inputs: `w_input_i` and `w_input_j`. The `w_input_i` window contains the `x y z vx vy vz m` floating point values for 32 particles. The `w_input_j` window contains the only `x y z m` floating-point values for the same 32 particles. This kernel produces one output: `w_output_i` which contains the new `x y z vx vy vz m` floating-point values for the 32 particles in the next timestep.  
+
+
+|name|number of 32-bit data values|
+| -------------|-----------|
+|`w_input_i`|32 * 7 = 224|
+|`w_input_j`|32 * 4 = 128|
+|`w_output_i`|32 * 7 = 224|
+
+![alt text](images/data_formats.png)
+
+The `nbody()` kernel is sectioned into two major `for` loops. The first major `for` loop (around lines 38-61) calculates the new `x y z` positions for the 32 particles. The second major `for` loop (around lines 64-202) calculates the new `vx vy vz` velocities for the 32 particles. The output mass (`m`) values remain the same as the inputs. The `w_output_i` window is then sent to the `transmit_new_i` kernel (source: `src/transmit_new_i.cc`) to be written to the final output window.
+
+## Four NBody() Kernels Packet Switched
+Next, review the `src/nbody_subsystem.h` graph. This graph creates four N-Body kernels, a packet splitter kernel, and a packet merger kernel. Review the packet switching feature tutorial to learn more about the packet switching feature in the AI Engine: [04-packet-switching](https://github.com/Xilinx/Vitis-Tutorials/tree/master/AI_Engine_Development/Feature_Tutorials/04-packet-switching).  
+
+![alt text](images/nbody_subsystem%20(1).PNG)
+
+The `nbody_subsystem` graph has two inputs: `input_i` and `input_j`. The `input_i` port is a packet stream that connects to the packet splitter. The packet splitter redirects packets of data to the `w_input_i` port of each `nbody()` kernel. Each `input_i` packet contains a packet header, 224 32-bit data values, and TLAST asserted with the `m31` data value. The `input_j ` port is a data stream that is broadcast to all the `nbody()` kernels (i.e., all `nbody()` kernels receive the same `input_j` data). The `nbody()` kernels perform their computations and generate the new `w_output_i` data which is merged into a single stream of packets, resulting in the output of the `nbody_subsystem` graph `output_i`.
+
+|Name|Number of 32-bit Data Values|Window Size (bytes)|
+| -------------|-----------|-----------|
+|input_i|224 * 4 = 896| 896 * 4 = 3584 bytes|
+|input_j|128| 128 * 4 = 512 bytes|
+|output_i|224 * 4 = 896| 896 * 4 = 3584 bytes|
+
+A single instance of the `nbody_subsystem` graph can simulate 128 particles using four AI Engine tiles.
+
+### Workload Distribution and input_j
+To calculate the N-Body gravity equations for 128 particles, each `nbody()` kernel calculates the N-Body gravity equations for 32 particles. However, in order to calculate acceleration and the new velocities, an `nbody()` kernel needs to know the data in the other kernels. For example, if particle 0 is mapped to `nbody_kernel[0]` and particle 32 is mapped to `nbody_kernel[1]`,  then `nbody_kernel[0]` needs to know the data in `nbody_kernel[1]` to accurately calculate the summation equation for acceleration and then calculate the new velocity of particle 0.
+
+This is where the `input_j` stream plays a vital role in data sharing. Even though the `input_j` data stream has a window size for 32 particles worth of data, the `LOOP_COUNT_J` value can be set to allow the `nbody()` kernels to take in any number of 32 particles worth of data at a time. For a single instance of the `nbody_subsystem` graph, the `LOOP_COUNT_J` should be set to 4 to stream in data for all four kernels. For the final AI Engine graph, which contains 100 instances of the `nbody_subsystem` graph, the `LOOP_COUNT_J` value is set to 400 to stream in data for all 400 kernels to each `nbody()` kernel.
+
+![alt text](images/input_j_description.png)
+
+For example, to calculate the new velocity of particle 0 mapped in `nbody_kernel[0]`, the `nbody_kernel[0]` can retrieve the data value of particle 32 from the `input_j` stream. This way, all `nbody()` kernels will have the data values for all other particles mapped in the other `nbody()` kernels through data streaming from `input_j`.  
+
+## 100 N-Body Subsystems
+Review the `nbody_x4_x100.h`. It contains the definition of the `nbodySystem` graph which contains 100 instances of the `nbody_subsystem` graph. Each `nbody_subsystem` is mapped to four AI Engine tiles which each contain an `nbody()` kernel. Therefore, the `nbodySystem` graph contains 400 `nbody()` kernels using up all of the 400 available AI Engine tiles. Since each `nbody()` kernel simulates 32 particles, the `nbodySystem` simulates 12,800 particles (32 particles * 400 kernels). There are 100 `input_i` ports (`input_i0-99`) and a single `input_j` port. For 1 iteration, the `input_i` ports receive 4 packetized `w_input_i` data which are distributed to 4 `nbody()` kernels in each `nbody_subsystem` graph. The `input_j` is a 1:400 broadcast stream to the 400 `w_input_j` ports in the 400 `nbody()` kernels.  
+
+Review the `nbody_x4_100.cpp` file. It contains an instance of the `nbodySystem` graph and simulates it for one iteration. Also, review the data files in the data folder where you will find the input data files for the `nbodySystem` (`input_i0-99.txt` and `input_j.txt`) used by the `nbodySystem` graph.
+
+![alt text](images/x100_design.png)
+
+Below is the implementation of the 100 compute unit on all 400 AI Engine tiles viewed on the AMD Vitis Analyzer tool.
+![alt text](images/Nbody_aie_array_view.png)
+
+The red highlighted region encompasses four AI Engine tiles which contain a single compute unit.
+
+Following is the graph visualization of a single compute unit on the Vitis Analyzer tool.
+![alt text](images/Nbody_aie_graph_view.png)
+
+## Why Packet Switching?
+You might be curious about the need to implement the packet switching scheme 1:4/4:1. This was done to circumvent an AI Engine architecture limitation on the number of simultaneous input and output AXI-Streams allowed per AI Engine column. There are 50 AI Engine columns in the AI Engine array. Each column contains 8 AI Engine tiles. Each AI Engine column is allowed a maximum of 6 32-bit AXI-Stream inputs and 4 32-bit AXI-Stream outputs.
+
+In the design, each `nbody()` kernel is mapped to an AI Engine tile. Meaning each column of 8 AI Engine tiles has 9 inputs streams and 8 output streams, violating these constraints.
+
+* 8 `w_input_i` input streams
+* 1 `w_intput_j` input stream
+* 8 `w_output_i` output streams
+
+With the 1:4/4:1 packet switching scheme, you can combine 4 streams into 1. Because packet switching is applied on the `w_input_i` ports, the number of input streams into a single AI Engine column is reduced to three:
+
+* 1 `input_i` stream that goes to tiles 0-3 in a column
+* 1 `input_i` stream that goes to tiles 4-7 in a column
+* 1 `input_j` stream that is broadcasted to all the columns
+
+On the output side, the number of output streams is reduced to two:
+* 1 `output_i` stream coming from tiles 0-3 in a column
+* 1 `output_i` stream coming from tiles 4-7 in a column
+
+## (Optional) Simulate the AI Engine Design
+
+*Estimated time: a few days*
+
+Run the following make command to invoke the aiesimulator.
+
+```
+make sim
+```
 
 ## References
 
-* [CSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
+* [Packet Switching AI Engine Tutorial](https://github.com/Xilinx/Vitis-Tutorials/tree/master/AI_Engine_Development/Feature_Tutorials/04-packet-switching)
 
+* [AI Engine Documentation - Explicit Packet Switching](https://docs.amd.com/r/en-US/ug1079-ai-engine-kernel-coding/Explicit-Packet-Switching)
+
+* [Compiling an AI Engine Graph Application](https://docs.amd.com/r/en-US/ug1076-ai-engine-environment/Compiling-an-AI-Engine-Graph-Application)
+
+* [Simulating an AI Engine Graph Application](https://docs.amd.com/r/en-US/ug1076-ai-engine-environment/Simulating-an-AI-Engine-Graph-Application)
 
 ## Next Steps
 
+After compiling the 100 compute unit N-Body Simulator design, you are ready to create the PL datamover kernels in the next module, [Module 03 - PL Design](../Module_03_pl_kernels).
 
-Let’s get started with running the Matlab model of FAM on an x86 machine in [Module 01 - Matlab Simulations on x86](Module_01_matlab_sim).
+### Support
+
+GitHub issues will be used for tracking requests and bugs. For questions go to [support.xilinx.com](http://support.xilinx.com/).
 
 
+
+<p class="sphinxhide" align="center"><sub>Copyright © 2020–2024 Advanced Micro Devices, Inc</sub></p>
+
+<p class="sphinxhide" align="center"><sup><a href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a></sup></p>

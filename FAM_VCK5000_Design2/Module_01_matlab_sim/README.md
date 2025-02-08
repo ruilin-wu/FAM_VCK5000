@@ -213,6 +213,6 @@ The average run time we got after running the matlab script 100 times is 3677.26
 
 ## Next Steps
 
-After running the Python NBody Simulator, you are ready to move to the next module, [Module 02-AI Engine Design](../Module_02_aie).
+After running the FAM on the Matlab, we are ready to move to the next module, [Module 02-AI Engine Design](../Module_02_aie).
 
 
