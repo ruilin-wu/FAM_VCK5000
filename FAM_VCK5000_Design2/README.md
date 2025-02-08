@@ -158,15 +158,16 @@ This module presents the host software that enables the entire design:
 [Read more...](Module_05_host)
 
 
-Modules_01-05 builds walks through building the final 100 Compute Unit design. The intermediate designs (x1_design and x10_design) are also provided if you want to build an N-Body Simulator with shorter build times or run hardware emulation within a reasonable amount of time.  
+Modules_01-05 builds walks through building the final 134 Compute Unit design. 
+
+
+
 
 ## Build Flows
 This tutorial has two build flows you can choose from depending on your comfort level with AMD design processes.  
 
 ### For more advanced users
 For those who are already familiar with the creating AI Engine designs and AMD Vitis projects, you may just want to build the entire design with a single command. You can do this by running the following command from the top-level folder:
-
-*Estimated Time: 6 hours*
 
 ```
 make all
@@ -176,40 +177,22 @@ make all
 
 For those who are just starting out, you may want to build each module one at time, view the output on the terminal, and learn as you work your way through the tutorial. In this case, cd into each Module folder and run the `make all` command to build just that component of the design. The specific commands `make all` runs under the hood is specificed in each Module's README.md.
 
-*Estimated Time: depends on the Module you're building*
 
 ```
-cd Module_0*
+cd Module_0i
 make all
 ```
 
-### A Word about Makefiles
-
-This design is built with the help of Makefiles. Each module can be run from the top-level Makefile or from the Makefile inside each module. You can quickly see which make commands are available by running the `make help` command. You can also use the `make clean` command to remove the generated files.  
-
-### Building for VCK190 ES1 Board
-
-By default, the Makefiles build the design for the VCK190 Production board (i.e. using the xilinx_vck190_base_<ver> embedded platform). In order to build the design for the VCK190 ES1 board, ensure you've downloaded the xilinx_vck190_es1_base_<ver> embedded platform from the lounge, so its available for this design build. Then specify the environment variable `export PLATFORM=xilinx_vck190_es1_base_<ver>` with your `sample_env_setup.sh` script.  
 
 ## References
 
-* [GRAPE-6: Massively-Parallel Special-Purpose Computer for Astrophysical Particle Simulations](https://academic.oup.com/pasj/article/55/6/1163/2056223)
+* [CSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
 
-* [N-body problem wiki page](https://en.wikipedia.org/wiki/N-body_problem)
-
-* [Ultra96 FPGA-Accelerated Parallel N-Particle Gravity Sim](https://www.hackster.io/rajeev-patwari-ultra96-2019/ultra96-fpga-accelerated-parallel-n-particle-gravity-sim-87f45e)
 
 ## Next Steps
 
 Let's get started with running the python model of the N-Body simulator on an x86 machine in [Module 01 - Python Simulations on x86](Module_01_python_sims).
 
 
-### Support
-
-GitHub issues will be used for tracking requests and bugs. For questions go to [support.xilinx.com](http://support.xilinx.com/).
 
 
-
-<p class="sphinxhide" align="center"><sub>Copyright © 2020–2024 Advanced Micro Devices, Inc</sub></p>
-
-<p class="sphinxhide" align="center"><sup><a href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a></sup></p>
