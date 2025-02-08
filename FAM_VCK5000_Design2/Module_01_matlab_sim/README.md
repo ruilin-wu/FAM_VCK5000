@@ -196,29 +196,19 @@ The final result will be saved to the `data_out` folder, which contains 128 txt 
 
 ### Time Consume
 
-Each unit test simulates a different number of particles for 1 timestep.
+The average run time we got after running the matlab script 100 times is 3677.267 ms, next we will get the run time of VCK5000 and compare it in the following steps.
 
-|Test Name|Number of Particles|
+|Model|Running Time(ms)|
 | ------------- | ------------- |
-|test_random_x1|128|
-|test_random_x10|1280|
-|test_random_x100|12800|
-
-The 100 tile AI Engine design simulates 12,800 particles. The single tile AI Engine design (x1_design) simulates 128 particles, and the 10 tile AI Engine design (x10_design) simulates 1280 particles.
-
-## Results
+|Matlab in x86|3677.267|
 
 
 
-| 128 Particles  | 1,280 Particles | 12,800 Particles |
-| -------------  | -------------  |-------------    |
-|![alt text](images/animation_128_particles.gif)|![alt text](images/animation_1280_particles_rb.gif)|![alt text](images/animation_12800_particles_rb.gif)|
-|x,y,z scale=+-1800|x,y,z scale=+-2300|x,y,z scale=+-63256|
 
 
 ## References
 
-* [CSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
+* [Implementation of Cyclic Spectral Analysis Methods](https://apps.dtic.mil/sti/tr/pdf/ADA261715.pdf)
 
 
 ## Next Steps
