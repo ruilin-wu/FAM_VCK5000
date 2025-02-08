@@ -1,32 +1,11 @@
-﻿<table class="sphinxhide" width="100%">
- <tr width="100%">
-    <td align="center"><img src="https://raw.githubusercontent.com/Xilinx/Image-Collateral/main/xilinx-logo.png" width="30%"/><h1>AMD Versal™ Adaptive SoC AI Engine Tutorials</h1>
-    <a href="https://www.xilinx.com/products/design-tools/vitis.html">See AMD Vitis™ Development Environment on xilinx.com</br></a>
-    <a href="https://www.xilinx.com/products/design-tools/vitis/vitis-ai.html">See AMD Vitis™ AI Development Environment on xilinx.com</a>
-    </td>
- </tr>
-</table>
-
 # Build the Design
 
-*Estimated time: 2 hours*
+
 
 ```
-make aie
+make all
 ```
 
-or
-
-```
-aiecompiler -v  --target=hw 					\
-                --stacksize=2000 				\
-                -include="$(XILINX_VITIS)/aietools/include" 	\
-	        -include="./" 					\
-	        -include="./src" 				\
-	        -include="../data" 				\
-	        nbody_x4_100.cpp 				\
-	        -workdir=work
-```
 
 ## AI Engine Design
 
@@ -93,55 +72,10 @@ The red highlighted region encompasses four AI Engine tiles which contain a sing
 Following is the graph visualization of a single compute unit on the Vitis Analyzer tool.
 ![alt text](images/Nbody_aie_graph_view.png)
 
-## Why Packet Switching?
-You might be curious about the need to implement the packet switching scheme 1:4/4:1. This was done to circumvent an AI Engine architecture limitation on the number of simultaneous input and output AXI-Streams allowed per AI Engine column. There are 50 AI Engine columns in the AI Engine array. Each column contains 8 AI Engine tiles. Each AI Engine column is allowed a maximum of 6 32-bit AXI-Stream inputs and 4 32-bit AXI-Stream outputs.
 
-In the design, each `nbody()` kernel is mapped to an AI Engine tile. Meaning each column of 8 AI Engine tiles has 9 inputs streams and 8 output streams, violating these constraints.
 
-* 8 `w_input_i` input streams
-* 1 `w_intput_j` input stream
-* 8 `w_output_i` output streams
-
-With the 1:4/4:1 packet switching scheme, you can combine 4 streams into 1. Because packet switching is applied on the `w_input_i` ports, the number of input streams into a single AI Engine column is reduced to three:
-
-* 1 `input_i` stream that goes to tiles 0-3 in a column
-* 1 `input_i` stream that goes to tiles 4-7 in a column
-* 1 `input_j` stream that is broadcasted to all the columns
-
-On the output side, the number of output streams is reduced to two:
-* 1 `output_i` stream coming from tiles 0-3 in a column
-* 1 `output_i` stream coming from tiles 4-7 in a column
-
-## (Optional) Simulate the AI Engine Design
-
-*Estimated time: a few days*
-
-Run the following make command to invoke the aiesimulator.
-
-```
-make sim
-```
-
-## References
-
-* [Packet Switching AI Engine Tutorial](https://github.com/Xilinx/Vitis-Tutorials/tree/master/AI_Engine_Development/Feature_Tutorials/04-packet-switching)
-
-* [AI Engine Documentation - Explicit Packet Switching](https://docs.amd.com/r/en-US/ug1079-ai-engine-kernel-coding/Explicit-Packet-Switching)
-
-* [Compiling an AI Engine Graph Application](https://docs.amd.com/r/en-US/ug1076-ai-engine-environment/Compiling-an-AI-Engine-Graph-Application)
-
-* [Simulating an AI Engine Graph Application](https://docs.amd.com/r/en-US/ug1076-ai-engine-environment/Simulating-an-AI-Engine-Graph-Application)
 
 ## Next Steps
 
 After compiling the 100 compute unit N-Body Simulator design, you are ready to create the PL datamover kernels in the next module, [Module 03 - PL Design](../Module_03_pl_kernels).
 
-### Support
-
-GitHub issues will be used for tracking requests and bugs. For questions go to [support.xilinx.com](http://support.xilinx.com/).
-
-
-
-<p class="sphinxhide" align="center"><sub>Copyright © 2020–2024 Advanced Micro Devices, Inc</sub></p>
-
-<p class="sphinxhide" align="center"><sup><a href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a></sup></p>
