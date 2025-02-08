@@ -161,6 +161,7 @@ $$
 $$
   f = \frac{f_k + f_e}{2} \quad (4)
 $$
+
 The matlab code of the Conjugate Multiplication is shown below:
 ```
 XM=zeros(P,Np^2);
@@ -174,8 +175,9 @@ XM = single(XM);
 ```
 
 ### Second FFT (32-pt)
-
-The matlab code of the Conjugate Multiplication is shown below:
+The product from the previous multiplication is 32-pt FFT to yield a P-point result. Only the middle of the resulting spectrum is retained and stored into the designated f,a cell.
+The upper and lower ends are undesireable because of increased estimate variation at the channel pair ends.
+The matlab code of the Second FFT is shown below:
 ```
 XF2=FFTFloatv3_M1(XM);
 XF2_1=fft(XM);
@@ -185,20 +187,14 @@ XF2 = single(XF2);
 format long
 XF2_2=XF2(P/4+1:3*P/4, :);  % Retain central portion after trimming
 ```
-### Final Result Save (32-pt)
 
-Review the `test.py` file. Notice that it runs three unit tests: `test_random_x1`, `test_random_x10`, and `test_random_x100`. Each unit test creates two instances of the `Particles` class: `particles_i` and `particles_j`. Each `Particles` object contains arrays of floating point values for the particle positions, particle velocities, and mass (`x y z vx vy vz m`). These arrays are initalized with random values with the `setSphereInitialConditions()` function in `pylib/particles.py` file. The `x` and `y` positions are constrained to be in a sphere by invoking `cos()` and `sin()` functions. The remaining constrains are as follows:
+### Final Result Save 
 
-* minimum z initial position = -1000
-* maximum z initial position = 1000
-* minimum mass = 10
-* maximum mass = 110
-* minimum inital velocity = -2.0
-* maximum inital velocity = 2.0
-* timestep (ts) = 1
-* softening factor<sup>2</sup> (sf<sup>2</sup>)= 1000
 
-Each unit test then calls the `pylib/nbody.py`'s `compute()` function passing in the `particles_i` and `particles_j` objects as inputs. The `nbody.compute()` function is the vectorized python implementation of the N-Body Simulator and each call simulates 1 timestep. The `nbody.compute()` function outputs a new `Particles` object with the new `x y z vx vy vz m` floating point arrays.  
+The final result will be saved to the `data_out` folder, which contains 128 txt files, each containing 8192 complex numbers of SINGLE precision. In the second paragraph of test.mlx, we also wrote the code for comparing the results of the Matlab simulation with those of the VCK5000, and all the results can be considered to be identical at a precision of 0.001.
+
+
+### Time Consume
 
 Each unit test simulates a different number of particles for 1 timestep.
 
