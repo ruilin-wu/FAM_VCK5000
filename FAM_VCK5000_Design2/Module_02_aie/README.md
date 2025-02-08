@@ -77,5 +77,5 @@ Following is the graph visualization of a single compute unit on the Vitis Analy
 
 ## Next Steps
 
-After compiling the 100 compute unit N-Body Simulator design, you are ready to create the PL datamover kernels in the next module, [Module 03 - PL Design](../Module_03_pl_kernels).
+After compiling the 100 compute unit N-Body Simulator design, you are ready to create the PL datamover kernels in the next module, [Module 03 - PL Design](../Module_03_pl).
 
