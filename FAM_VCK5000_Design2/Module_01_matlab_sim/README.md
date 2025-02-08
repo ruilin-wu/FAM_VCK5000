@@ -59,9 +59,79 @@ Some critical aspects of the previous code are highlighted in the following:
 `diag(a) * X` multiplies the coefficients of `a` by each column of `X`, which is equivalent to weighting the window function for each channel.
 
 ### First FFT (256-pt)
+Each column of the windowed data array is Fast Fourier transformed to reveal the first spectral components. The resultant array is still indexed P rows by N' columns but now the column index relates to a specific bin of spectral frequencies. 
+
+The matlab of the FFT function is shown below:
+```
+function OutputSignal = FFTFloatv3_M1(InputSignal)
+% FFTFloatv3_M1 performs FFT computation on single-precision floating-point data
+% Input:
+%   InputSignal - input signal matrix (rows: signal length, columns: time samples)
+% Output:
+%   OutputSignal - FFT-transformed signal matrix
+S = double(InputSignal);
+FFTn = length(S(:,1));
+k = length(S(1,:));
+N = FFTn;
+W = exp(-1 * 2j * pi * (0:N-1) / N);
+OutputSignal = zeros(FFTn, k);
+p = nextpow2(FFTn);
+for i = 1:k
+    s = bitrevorder(S(:,i));
+    s = [s zeros(1, (2^p) - length(s))];
+    WINDOWSIZE_LOG = log2(N);
+
+    % Decimation-In-Time (DIT) FFT Algorithm
+    Half = 1;
+    for step = 1:WINDOWSIZE_LOG
+        for index = 0:(N / (2^(WINDOWSIZE_LOG - step))):(N - 1)
+            for n = 0:Half - 1
+                pos = n + index + 1;
+                pow = (2^(WINDOWSIZE_LOG - step)) * n;
+                w = W(pow + 1);
+                a = (s(pos) + s(pos + Half) * w);
+                b = (s(pos) - s(pos + Half) * w);
+                s(pos) = a;
+                s(pos + Half) = b;
+            end
+        end
+        Half = Half * 2;
+    end
+    OutputSignal(:, i) = s;
+end
+end
+```
+Some critical aspects of the previous code are highlighted in the following:
+
+* We use `W = exp(-1 * 2j * pi * (0:N-1) / N)` to compute the FFT rotation factors.  
+  
+* A layered iterative approach is used to perform the base 2 DIT FFT butterfly computation, doubling the data block size at each layer of the butterfly operation. Then update the data layer by layer and compute the butterfly structure using the rotation factor `W`.
+
+* The FFT transformed data is deposited into `OutputSignal`, where each column corresponds to one FFT column of the input matrix.
+
 
 ### Downconversion
 
+Each row of spectral components is downconverted to baseband through multiplication with the complex exponential:
+\[
+e^{-\frac{j2\pi kmL}{N'}}
+\]
+Index Definitions
+
+- **m**: Row index, \(0 \leq m \leq P-1\)
+- **k**: Column index, \(0 \leq k \leq N'-1\)
+
+Explanation
+
+- The magnitude of the exponential is **unity** over the array.
+- The **phase** exhibits considerable variation.
+- Figure 14 illustrates the phase distribution of the exponential across the \( P \times N' \) array.
+- Figure 15 provides a phase representation for a single row.
+- The **magnitude of the array remains unchanged** from Figure 13.
+
+---
+
+这个 README 格式清晰地概括了你的文档内容，并适用于工程或研究项目的说明文件。你可以根据需求进一步修改！
 ### Conjugate Multiplication
 
 ### Second FFT (32-pt)
