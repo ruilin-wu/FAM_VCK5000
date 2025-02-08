@@ -9,7 +9,7 @@ Use MATLAB software to open `test.mlx` and click the Run button.
 ## The principle and code implementation of FAM algorithm in Matlab
 
 ### Data Input
-To match the input format in our AIE design, we store the input files in the [data_in](data_in) folder. We assume that the files stored in the [data_in](data_in) folder are files that have been processed by Input Channelization. At this time, the time domain sampling data is neatly arranged into a two-dimensional matrix with `P`(32) rows and `N'(256) columns.
+To match the input format in our AIE design, we store the input files in the [data_in](data_in) folder. We assume that the files stored in the [data_in](data_in) folder are files that have been processed by Input Channelization. At this time, the time domain sampling data is neatly arranged into a two-dimensional matrix with `P`(32) rows and `N'`(256) columns.
 
 We convert the data from the input file into a 256*32 (transposed for ease of subsequent FFT calculations) 2D matrix in Matlab with the following code:
 ```
@@ -33,6 +33,16 @@ Some critical aspects of the previous code are highlighted in the following:
 
 
 ### Windowing
+## 2. Windowing
+
+A Hamming window [Ref 7: pg 467] is applied to each row of the array. The equation for the Hamming window is:
+
+$$
+w(r) = 0.54 - 0.46 \cos \left(\frac{2\pi r}{N' - 1}\right), \quad 0 \leq r \leq N' - 1 \quad (1)
+$$
+
+where \(N'\) represents the row length of the array.
+
 
 ### First FFT (256-pt)
 
