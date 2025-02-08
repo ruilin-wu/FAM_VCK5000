@@ -118,49 +118,26 @@ e^{-\frac{j2\pi kmL}{N'}}
 \]
 Index Definitions
 
-- **m**: Row index, \(0 \leq m \leq P-1\)
-- **k**: Column index, \(0 \leq k \leq N'-1\)
+- **m**: Row index, 0 <= m <= P-1
+- **k**: Column index, 0 <= k <= N'-1
 
-The magnitude of the exponential is **unity** over the array and the **phase** exhibits considerable variation.
+The **magnitude** of the exponential is unity over the array and the **phase** exhibits considerable variation.
 
-The matlab of the FFT function is shown below:
+The matlab of the Downconversion is shown below:
 ```
-function OutputSignal = FFTFloatv3_M1(InputSignal)
-% FFTFloatv3_M1 performs FFT computation on single-precision floating-point data
-% Input:
-%   InputSignal - input signal matrix (rows: signal length, columns: time samples)
-% Output:
-%   OutputSignal - FFT-transformed signal matrix
-S = double(InputSignal);
-FFTn = length(S(:,1));
-k = length(S(1,:));
-N = FFTn;
-W = exp(-1 * 2j * pi * (0:N-1) / N);
-OutputSignal = zeros(FFTn, k);
-p = nextpow2(FFTn);
-for i = 1:k
-    s = bitrevorder(S(:,i));
-    s = [s zeros(1, (2^p) - length(s))];
-    WINDOWSIZE_LOG = log2(N);
-
-    % Decimation-In-Time (DIT) FFT Algorithm
-    Half = 1;
-    for step = 1:WINDOWSIZE_LOG
-        for index = 0:(N / (2^(WINDOWSIZE_LOG - step))):(N - 1)
-            for n = 0:Half - 1
-                pos = n + index + 1;
-                pow = (2^(WINDOWSIZE_LOG - step)) * n;
-                w = W(pow + 1);
-                a = (s(pos) + s(pos + Half) * w);
-                b = (s(pos) - s(pos + Half) * w);
-                s(pos) = a;
-                s(pos + Half) = b;
-            end
+E=zeros(Np,P);
+a=zeros(Np,P);
+for k = -Np/2:Np/2-1
+    for input_index = 0:P-1
+        a_value = -2 * pi * k * input_index * L / Np;
+        a_value = mod(a_value + pi, 2 * pi) - pi;
+        a_normalized = a_value / pi;
+        if abs(a_normalized) < 0.00001
+            a_normalized = 0;
         end
-        Half = Half * 2;
+        a(k + Np/2 + 1, input_index + 1) = a_normalized;
+        E(k + Np/2 + 1, input_index + 1) = exp(-1i * 2 * pi * k * input_index * L / Np);
     end
-    OutputSignal(:, i) = s;
-end
 end
 ```
 Some critical aspects of the previous code are highlighted in the following:
