@@ -114,9 +114,10 @@ Some critical aspects of the previous code are highlighted in the following:
 
 Each row of spectral components is downconverted to baseband through multiplication with the complex exponential:
 $$
-e^{-\frac{j2\pi kmL}{N'}} \quad (1)
+e^{-\frac{j2\pi kmL}{N'}} \quad (2)
 $$
-Index Definitions
+
+#### Index Definitions
 
 - **m**: Row index, 0 <= m <= P-1
 - **k**: Column index, 0 <= k <= N'-1
@@ -143,7 +144,7 @@ XD_beforeTranspose=XF1_shift.*E;
 ```
 Some critical aspects of the previous code are highlighted in the following:
 
-* WWe use `E(k + Np/2 + 1, input_index + 1) = exp(-1i * 2 * pi * k * input_index * L / Np);` to compute the complex exponential matrix `E` for down-conversion operations. The final result of this step is stored in the XD_beforeTranspose matrix.
+* We use `E(k + Np/2 + 1, input_index + 1) = exp(-1i * 2 * pi * k * input_index * L / Np);` to compute the complex exponential matrix `E` for down-conversion operations. The final result of this step is stored in the `XD_beforeTranspose` matrix.
 
 ### Conjugate Multiplication
 
