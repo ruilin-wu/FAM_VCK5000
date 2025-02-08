@@ -148,6 +148,20 @@ Some critical aspects of the previous code are highlighted in the following:
 * We use `E(k + Np/2 + 1, input_index + 1) = exp(-1i * 2 * pi * k * input_index * L / Np);` to compute the complex exponential matrix `E` for down-conversion operations. The final result of this step is stored in the `XD_beforeTranspose` matrix.
 
 ### Conjugate Multiplication
+In the cyclic spectral plane, each **cell** is computed by multiplying one **column** of the array with the **conjugate** of another column.  
+
+- The **column separation** is determined by the **desired frequency separation** or **cycle frequency**:
+
+  \[
+  \alpha = f_k - f_e \quad (3)
+  \]
+
+- The **mid-point between the two columns** defines the **frequency bin of interest**:
+
+  \[
+  f = \frac{f_k + f_e}{2} \quad (4)
+  \]
+
 
 ### Second FFT (32-pt)
 
