@@ -152,15 +152,15 @@ In the cyclic spectral plane, each **cell** is computed by multiplying one **col
 
 - The **column separation** is determined by the **desired frequency separation** or **cycle frequency**:
 
-  \[
+$$
   \alpha = f_k - f_e \quad (3)
-  \]
+$$
 
 - The **mid-point between the two columns** defines the **frequency bin of interest**:
 
-  \[
+$$
   f = \frac{f_k + f_e}{2} \quad (4)
-  \]
+$$
 
 
 ### Second FFT (32-pt)
