@@ -114,7 +114,7 @@ Some critical aspects of the previous code are highlighted in the following:
 
 Each row of spectral components is downconverted to baseband through multiplication with the complex exponential:
 $$
-e^{-\frac{j2\pi kmL}{N'}} \quad (2)
+x = e^{-\frac{j2\pi kmL}{N'}} \quad (2)
 $$
 
 #### Index Definitions
