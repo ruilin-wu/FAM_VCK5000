@@ -11,12 +11,10 @@ make all
 
 The following AI Engine features are used in this design:
 
-* single precision floating-point compute of the N-Body gravity equations on 12,800 particles
-* 400 tile design with 400 parallel accelerators
-* 1:400 broadcast stream
-* 1:4 packet split
-* 4:1 packet merge
-* PL Kernels designed to support packet switching in AI Engine
+* single precision floating-point compute of the FAM alogorithms 
+* 134 tile design with 128 parallel accelerators
+* 1:128 broadcast stream
+* PL Kernels designed to support data move in AI Engine
 
 ## A Single Nbody() Kernel
 
