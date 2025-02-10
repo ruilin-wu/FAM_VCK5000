@@ -28,7 +28,7 @@ static const int NPSIZE = 0; // set to non-zero if additional zeros are needed
 static const int N_OUT_CH = 128; // If additional 0's are needed, set to non-zero.  
 static const int NSAMP_OUT = 8192; // Each output channel 8192 cfloat
 
-static const int ITER = 1000; // Number of times the demo has been executed.
+static const int ITER = 10; // Number of times the demo has been executed.
 
 int main(int argc, char** argv)
 {

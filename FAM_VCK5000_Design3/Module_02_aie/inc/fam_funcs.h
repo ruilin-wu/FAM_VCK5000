@@ -296,7 +296,28 @@ inline __attribute__((always_inline)) void stage1_dc (cfloat * restrict px0, uns
     }
 }
 
+inline __attribute__((always_inline)) void reorder512(cfloat *restrict ybuff)
+{
+    
+    alignas(aie::vector_decl_align) cfloat tmp[512];
 
+    
+    for(int i = 0; i < 512; i++)
+        chess_prepare_for_pipelining
+        chess_loop_range(512, 512)
+    {
+        tmp[i] = ybuff[i];
+    }
+
+    
+    for(int i = 0; i < 256; i++)
+        chess_prepare_for_pipelining
+        chess_loop_range(256, 256)
+    {
+        ybuff[2*i]   = tmp[i];       
+        ybuff[2*i+1] = tmp[i + 256]; 
+    }
+}
 
 inline __attribute__((always_inline)) void stage1 (cfloat * restrict px0, unsigned int n, cfloat * restrict py)
 {

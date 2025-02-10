@@ -27,7 +27,7 @@ static const int NPSIZE     = 0;    // Set to non-zero if padding is needed
 static const int N_OUT_CH   = 128;  
 static const int NSAMP_OUT  = 8192; // 8192 cfloat per output channel
 
-static const int ITER       = 1000;    // Number of execution iterations
+static const int ITER       = 10;    // Number of execution iterations
 
 int main(int argc, char** argv)
 {
