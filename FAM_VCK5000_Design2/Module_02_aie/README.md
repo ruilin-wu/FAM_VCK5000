@@ -204,7 +204,7 @@ inline __attribute__((always_inline))  void stage2_cm (cfloat * restrict px0, cf
 }
 ```
 
-- Performs **complex multiplication** on two input arrays (`px0`, `px1`) and stores the result in `py0`. Use the `fpmul_nc` function to perform conjugate multiplication
+- Performs **complex multiplication** on two input arrays (`px0`, `px1`) and stores the result in `py0`. Use the `fpmul_nc` function to perform conjugate multiplication.
 
 
 
@@ -221,5 +221,5 @@ And calls `opt_cfloat_stage_32pt()` 5 times to perform Radix-2 FFT transformatio
 
 ## Next Steps
 
-After compiling the 100 compute unit N-Body Simulator design, you are ready to create the PL datamover kernels in the next module, [Module 03 - PL Design](../Module_03_pl).
+After compiling the FAM algorithm, we are ready to create the PL datamover kernels in the next module, [Module 03 - PL Design](../Module_03_pl).
 
