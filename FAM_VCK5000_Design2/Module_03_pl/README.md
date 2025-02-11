@@ -9,69 +9,68 @@ make all
 ```
 
 
-## HLS PL Kernel1s
+## HLS PL Kernel
+As shown in figure below, the processing pipeline consists of three main components:
+1. **DDR (Memory Storage)**
+   - Stores raw input data.
+   - Uses `AXI Master` interface with **512-bit wide bursts**.
+2. **dma_hls (Data Transfer via PL)**
+   - Reads `8 × 64-bit` input streams from DDR.
+   - Transfers data to AIE using AXI streams.
+   - Receives `128 × 64-bit` processed outputs from AIE.
+   - Packs data into `1 × 512-bit` wide streams and writes back to DDR.
+3. **AIE (FFT Accumulation Processing)**
+   - Processes `8 × 64-bit` input streams.
+   - Expands the data into `128 × 64-bit` output streams.
 
 <div align="center">
     <img src="../../images/design2/dma_hls.png" alt="dma" />
 </div>
 
 
-After coming up with 400 tile AI Engine design, the next step is the come up with the way to move data from DDR send it to the AI Engine. We do this by using the the AMD Vitis™ core development kit, to create kernel code in C++ meant to be accelerated on the FPGA. The kernel code is compiled by the Vitis Compiler (`v++ -c`) into kernel objects (XO). The following is a table describing each HLS PL kernel.
+### **Code explanation**
+#### **HLS Kernel: `dma_hls.cpp`**
+The `dma_hls` function is the top-level HLS kernel that performs:
+1. **Reading Input Data from DDR (`memin0` to `memin7`)**
+   - Uses `ap_uint<512>` to read **8 cfloat values** at once.
+   - Writes to **8 separate AXI streams (`FAMDataIn_0` to `FAMDataIn_7`)**.
 
-|Kernel Name| Description| Fmax|
-|---|---| ---|
-|`mm2s_mp`|Dual-channel data-mover that moves data from DDR to AXI4-Stream.|411 MHz|
-|`packet_sender`|Packet switching kernel that packetizes AXI4-Stream data by generating a header packet and appropriately asserting `TLAST`|580 MHz|
-|`packet_receiver`|Packet switching kernel that evaluates packet headers from incoming streams and reroutes data to one of 4 AXI4-Streams|499.5 MHz|
-|`s2mm_mp`|Quad-channel data-mover that moves data from AXI4-Stream to DDR.|411 MHz|
+2. **AIE Computation (via AXI Streams)**
+   - Streams **input data to AI Engine** for FFT Accumulation Processing.
+   - Receives **128 output streams** from AI Engine.
 
-Using Vivado timing closure techniques, you can increase the FMax if needed. To showcase the example, integrate using the 300 MHz clock. There is also a 400 MHz timing-closed design in the [beamforming tutorial](https://github.com/Xilinx/Vitis-Tutorials/tree/master/AI_Engine_Development/Design_Tutorials/03-beamforming).
+3. **Writing Output Data to DDR (`memout`)**
+   - Reads **128 output streams (`FAMOut_0` to `FAMOut_127`)**.
+   - Packs data into `ap_uint<512>` to perform **high-bandwidth writes**.
+   - Uses loop optimizations for efficient memory access.
 
-![alt text](images/pl_kernels_highlighted.PNG)
+#### **AXI Interface Configuration**
+```cpp
+#pragma HLS INTERFACE m_axi offset=slave bundle=gmem0 port=memin0 max_read_burst_length=16 num_read_outstanding=64
+#pragma HLS INTERFACE axis port=FAMDataIn_0
+#pragma HLS INTERFACE axis port=FAMOut_0
+#pragma HLS PIPELINE II=1
+```
+- Uses **AXI Master (`m_axi`)** for memory accesses.
+- Uses **AXI Stream (`axis`)** for fast data movement.
+- Applies **loop pipelining** to maximize throughput.
 
-### mm2s_mp
+---
 
-The `mm2s_mp` is generated from the `kernel/spec.json` specification. Review this file. Notice the `mm2s_mp` kernel implementation is set to `LoadDdrToStream`, meaning this kernel is used to move data from DDR (AXI-MM) to AXI-Stream. It is specified to have two channels. The first channel moves data from a DDR `buffer` called `ibuff` to an AXI-stream called `s0`. This channel moves the `i` data out of DDR to AXI-Stream. The second channel moves `j` data from DDR buffer `jbuff` to an AXI-Stream `s1` and streams the data directly into the AI Engine's `input_j` port.  
+### **Performance Metrics**
+| Metric               | Value                 |
+|----------------------|----------------------|
+| **Input Data Rate**  | `8 × 64-bit @ 500MHz` |
+| **Output Data Rate** | `128 × 64-bit @ 500MHz` |
+| **Memory Write Rate** | `1 × 512-bit @ 500MHz` |
+| **Processing Latency** | `~19 cycles per batch` |
 
-### packet_sender
+---
 
-After `mm2s_mp` kernel loads `i` data onto an AXI-Stream, the `s0` is the input to the `packet_sender` kernel. The `packet_sender` kernel takes raw `i` data and packetizes it for the AI Engine. Review the `kernel/packet_sender.cpp` definition. The `packet_sender` does the following:
 
-* generates a header AXI-Stream packet
-* reads the `rx` stream
-* writes 224 AXI-Stream data packets to one of the 100 `tx` streams
-* asserts `TLAST` appropriately on the last data packet
 
-It repeats these actions so all 100 `tx` streams have a packet header and 224 data packets written to it. This is 1 iteration of data the AI Engine is expecting. The 100 `tx` streams are connected to the 100 `input_i` ports on the AI Engine.
-
-### packet_receiver
-
-After the AI Engine's 100 N-Body Subsystems crunch the N-Body equations on the `input_i` and `input_j` data, it outputs four data packets on each of the 100 `output_i` ports. Each output data packet can have a header of 0, 1, 2, or 3, indicating that it is coming from `nbody_kernel[0]`,  `nbody_kernel[1]`, `nbody_kernel[2]`, or `nbody_kernel[3]` in each of the nbody_subsystems. The 100 `output_i` ports are connected to the 100 `rx` streams on the `packet_receiver` kernel. The `packet_receiver` kernel receives four packets from each of the 100 `rx` streams, and depending on the packet header, writes the data to `tx0`, `tx1`, `tx2`, or `tx3` streams.
-
-### s2mm_mp
-
-The `s2mm_mp` kernel is generated from the `kernel/spec.json` specification. Review this file again. Notice that the `s2mm_mp` kernel has an implementation `StoreStreamToMaster` which moves data from AXI-Streams to DDR. The `s2mm_mp` kernel has 4 channels: `k0`,`k1`,`k2`, and `k3`. Each stream writes the data coming from the `tx0`-`tx3` streams to a DDR buffer.  
-
-## References
-
-* [Vitis Libraries Github Repo](https://github.com/Xilinx/Vitis_Libraries)
-
-* [Vitis Utilities Library Documentation](https://docs.amd.com/r/en-US/Vitis_Libraries/utils/index.html)
-
-* [Generating PL Data-Mover Kernels](https://docs.amd.com/r/en-US/Vitis_Libraries/utils/datamover/kernel_gen_guide.html)
-
-* [Vitis Compiler Command](https://docs.amd.com/r/en-US/ug1393-vitis-application-acceleration/v-Command)
 
 ## Next Steps
 
 After compiling the PL datamover kernels, you are ready to link the entire hardware design together in the next module, [Module 04 - Full System Design](../Module_04_full_system_design).
 
-### Support
-
-GitHub issues will be used for tracking requests and bugs. For questions go to [support.xilinx.com](http://support.xilinx.com/).
-
-
-
-<p class="sphinxhide" align="center"><sub>Copyright © 2020–2024 Advanced Micro Devices, Inc</sub></p>
-
-<p class="sphinxhide" align="center"><sup><a href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a></sup></p>
