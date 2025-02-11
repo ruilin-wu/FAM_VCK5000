@@ -48,6 +48,7 @@ Review the `kernels/conv_stage1.cpp` file.
 <div align="center">
     <img src="../../images/design2/stage2.png" alt="FAM Stage 2" />
 </div>
+
 Review the `kernels/fam_stage2.cpp` file.
 - The `fam_stage2` function processes **complex floating point (cfloat) input streams** from two input sources (`inputx0`, `inputx1`).
 - The function reads **16-element vectorized complex numbers** from the input stream.
