@@ -83,7 +83,33 @@ The diagram below shows the floor plan view of the AI Engine array. The design r
     <img src="../../images/design2/AIE_graph.png" alt="AIE_graph" />
 </div>
 
+## (Optional) Detailed code explanation of each stage 
+In this section, I will explain in detail my thinking when designing each piece of code. In order to simplify the process, I used methods including pipelining, parallelization, and pre-calculation of parameters to improve efficiency.
+Review the `inc/fam_funcs.h` file.
 
+### Windowing
+```
+inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  cfloat * restrict py0)
+{   
+    //static constexpr float* __restrict tw1 = (float*)window_factor;
+    v8float * restrict ptw1 = (v8float * restrict) window_factor1;
+    //v8float * restrict ptw2 = (v8float * restrict) (window_factor1 + 32/2);
+    v8float * restrict pi1 = (v8float * restrict) px0;
+    //v8float * restrict pi2 = (v8float * restrict) px0 + 32/2;
+    v8float * restrict po1 = (v8float * restrict) py0;
+    //v8float * restrict po2 = (v8float * restrict) py0 + 32/2;
+    for (int j = 0; j < 32; ++j)  
+        chess_prepare_for_pipelining chess_flatten_loop
+    {       
+        v8float x1 = *pi1++;
+        v8float x2 = *pi1++;      
+        v8float coef1 = *ptw1++;
+        v8float coef2 = *ptw1++;              
+        *po1++ = fpmul(x1, coef1);
+        *po1++ = fpmul(x2, coef2);        
+    }
+}
+```
 
 ## Next Steps
 
