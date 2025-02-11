@@ -6,18 +6,15 @@
 make all
 ```
 
-
-# **README - Host Code for DMA HLS Kernel Execution**
-
 ## **Overview**
-This project implements a **host application** to interact with the **DMA HLS kernel** on an **AMD Versal AI Engine platform**. The host code:
+This host code implements a **host application** to interact with the **DMA HLS kernel** on an **AI Engine platform**. The host code:
 - Loads input data from **local files** (`FAMDataIn_0.txt` to `FAMDataIn_7.txt`).
 - Transfers **8 input channels × 1024 cfloat** to the kernel.
 - Receives **128 output channels × 8192 cfloat** from the kernel.
 - Writes the processed data into **128 output files** (`FAMOut_0.txt` to `FAMOut_127.txt`).
 - Measures **performance metrics** such as throughput and GFLOPS.
 
----
+
 
 ## **Execution Steps**
 1. **Open the device** and load the compiled **xclbin**.
@@ -29,7 +26,7 @@ This project implements a **host application** to interact with the **DMA HLS ke
 7. **Save output data** into **128 text files**.
 8. **Measure performance metrics**.
 
----
+
 
 ## **Performance Results**
 After execution, the kernel performance is reported as follows:
@@ -50,29 +47,6 @@ Kernel done.
 [Performance] GFLOPS: 3.92663 GFLOPS
 ```
 
----
-
-## **Host Code (`host.cpp`)**
-### **Key Functionalities**
-- Reads **input data** from files and loads into FPGA memory.
-- Configures **DMA HLS kernel** and executes it.
-- Collects **output data** and saves to disk.
-- Measures **execution time, throughput, and GFLOPS**.
-
----
-
-## **How to Compile and Run**
-### **1. Compile**
-```sh
-g++ -g -std=c++11 -Wall -Werror -O2 host.cpp -o host_exec -lxrt_core -lxrt_coreutil
-```
-
-### **2. Run the Application**
-```sh
-./host_exec
-```
-
----
 
 ## **Generated Output Files**
 - **`FAMOut_0.txt` → `FAMOut_127.txt`**:  
@@ -81,6 +55,5 @@ g++ -g -std=c++11 -Wall -Werror -O2 host.cpp -o host_exec -lxrt_core -lxrt_coreu
 ---
 
 ## **Conclusion**
-This host application provides an efficient interface for data movement between DDR and the **DMA HLS kernel**. The achieved **throughput of 6.04 GB/s** and **3.93 GFLOPS** demonstrate the efficiency of this approach for **FFT Accumulation Method (FAM) processing**.
+This host application provides an efficient interface for data movement between DDR and the **DMA HLS kernel**. The achieved **throughput of 6.04 GB/s** and **3.93 GFLOPS** demonstrate the efficiency of this approach for **FFT Accumulation Method (FAM) processing**. And **Average execution time** is **0.00133521s**.
 
-🚀 **Ready to Deploy on AMD Versal!** 🚀
