@@ -70,7 +70,7 @@ Review the `kernels/fam_stage2.cpp` file.
 
 
 <div align="center">
-    <img src="../../images/design2/stage2.png" alt="stage2" />
+    <img src="../../images/design2/AIE_graph.png" alt="AIE_graph" />
 </div>
 
 
