@@ -131,7 +131,8 @@ The complex exponential can be expressed as
 $$
 e^{-\frac{j2\pi kmL}{N'}} \quad (1)
 $$
-Here, `m` is the Row index, `k` is the Column index, `N' ` is 256, and `L` is 64.
+
+Here, `m` is the Row index, `k` is the Column index, `N'` is 256, and `L` is 64.
 ```
 inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  cfloat * restrict py0)
 {   
