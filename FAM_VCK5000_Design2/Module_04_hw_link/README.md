@@ -1,7 +1,9 @@
 ## **Block Diagram**
 The following diagram illustrates the **high-throughput dataflow** between DDR, PL, and AI Engine:
 
-![DMA HLS Architecture](dma_hls.png)
+<div align="center">
+    <img src="../../images/design2/dma_hls.png" alt="dma" />
+</div>
 
 - **Input:** `8 × 64-bit` streams at **500MHz**.
 - **Processing:** FFT Accumulation expands the data into `128 × 64-bit` streams at **500MHz**.
@@ -9,22 +11,10 @@ The following diagram illustrates the **high-throughput dataflow** between DDR, 
 
 
 
-## **HLS Interface Configuration**
-```cpp
-#pragma HLS INTERFACE s_axilite bundle=control port=memin0
-#pragma HLS INTERFACE s_axilite bundle=control port=memout
-#pragma HLS INTERFACE axis port=FAMDataIn_0
-#pragma HLS INTERFACE axis port=FAMOut_0
-#pragma HLS PIPELINE II=1
-```
-- **AXI Master (`m_axi`)** for **DDR memory accesses**.
-- **AXI Stream (`axis`)** for **high-speed data transfer**.
-- **Loop pipelining** for **maximized throughput**.
 
----
 
 ## **Connectivity Configuration**
-The following **`connectivity.cfg`** file ensures proper **stream connections** between **DMA HLS and AI Engine**:
+The following **`config.cfg`** file ensures proper **stream connections** between **DMA HLS and AI Engine**:
 
 ```ini
 [connectivity]
