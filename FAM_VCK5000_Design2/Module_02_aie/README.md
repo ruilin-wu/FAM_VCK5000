@@ -59,6 +59,9 @@ Review the `kernels/fam_stage2.cpp` file.
 
 ## Design Overview
 
+<div align="center">
+    <img src="../../images/design2/Design.png" alt="Design" />
+</div>
 
 
 ### AI Engine Graph View
