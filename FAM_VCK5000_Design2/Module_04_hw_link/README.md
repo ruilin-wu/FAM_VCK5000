@@ -31,4 +31,3 @@ sp=dma_hls_0.memout:MC_NOC0
 - **Streams connect** `dma_hls` and `ai_engine` through **AXI streams**.
 - **Memory mapped to NoC (`MC_NOC0`)** for optimized DDR bandwidth.
 
----

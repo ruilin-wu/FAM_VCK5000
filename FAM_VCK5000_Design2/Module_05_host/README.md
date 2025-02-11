@@ -68,5 +68,5 @@ TEST PASS - Data saved in 128 files.
 
 
 ## **Conclusion**
-This host application provides an efficient interface for data movement between DDR and the **DMA HLS kernel**. The achieved **throughput of 6.04 GB/s** and **3.93 GFLOPS** demonstrate the efficiency of this approach for **FFT Accumulation Method (FAM) processing**. And **Average execution time** is **0.00133521s**.
+This host application provides an efficient interface for data movement between DDR and the **DMA HLS kernel**. The achieved **throughput of 6.09943 GB/s** and **3.96634 GFLOPS** demonstrate the efficiency of this approach for **FFT Accumulation Method (FAM) processing**. And **Average execution time** is **0.00132184s**.
 
