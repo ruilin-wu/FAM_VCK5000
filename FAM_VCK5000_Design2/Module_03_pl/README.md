@@ -12,8 +12,8 @@ make all
 ## HLS PL Kernel
 As shown in figure below, the processing pipeline consists of three main components:
 1. **DDR (Memory Storage)**
-   - Stores raw input data.
-   - Uses `AXI Master` interface with **512-bit wide bursts**.
+- Stores raw input data.
+- Uses `AXI Master` interface with **512-bit wide bursts**.
 2. **dma_hls (Data Transfer via PL)**
    - Reads `8 × 64-bit` input streams from DDR.
    - Transfers data to AIE using AXI streams.
