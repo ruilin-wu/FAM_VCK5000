@@ -58,7 +58,17 @@ Review the `kernels/fam_stage2.cpp` file.
 
 
 ## Design Overview
+The figure below shows block diagram of the FAM algorithm. It may be described as follows:
+* The "front-end" compute consists of 4 `fam_stage1()` kernel and 2 `conv_stage1()` kernel . 
 
+- 4 `fam_stage1` processing units (`fam_stage1_0` ~ `fam_stage1_3`) preprocess the data, such as **windowing, 256-pt FFT, Downconversion**, etc. `conv_stage1_0` and `conv_stage1_1` are responsible for merging the data streams and preparing the data to be transferred to **FAM Stage 2** for further processing.
+
+
+- We use a special method to handle the transposition of the matrix, please refer to the `kernels/conv_stage1.cpp` file for detailed description
+
+- The "back-end" compute consists of 32 identical instances of a `fam_stage2()` kernel . 
+
+- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each `fam_stage2` processing unit performs **32-point FFT** and **Conjugate Multiplication**.
 <div align="center">
     <img src="../../images/design2/Design.png" alt="Design" />
 </div>
