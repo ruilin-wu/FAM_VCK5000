@@ -1,57 +1,20 @@
-﻿<table class="sphinxhide" width="100%">
- <tr width="100%">
-    <td align="center"><img src="https://raw.githubusercontent.com/Xilinx/Image-Collateral/main/xilinx-logo.png" width="30%"/><h1>AMD Versal™ Adaptive SoC AI Engine Tutorials</h1>
-    <a href="https://www.xilinx.com/products/design-tools/vitis.html">See AMD Vitis™ Development Environment on xilinx.com</br></a>
-    <a href="https://www.xilinx.com/products/design-tools/vitis/vitis-ai.html">See AMD Vitis™ AI Development Environment on xilinx.com</a>
-    </td>
- </tr>
-</table>
+
 
 # Building the Design
 
-*Estimated time: 11 minutes*
+
 
 ```
 make all
 ```
-or, follow steps 1-3 as follows:
 
-### Step 1: Set the Vitis Utility Library path
-```
-XFLIB_DIR_REL_PATH :=$(DSPLIB_VITIS)/utils
-XFLIB_DIR := $(shell readlink -f $(XFLIB_DIR_REL_PATH))
-
-```
-This path will have the folder `utils` in it along with other libraries. You will be using its L2 Data-Mover generator tool.
-
-### Step 2: Generate mm2s_mp.cpp and s2mm_mp.cpp Datamover kernels
-
-```
-make -f ./ksrc.mk GENKERNEL=$(XFLIB_DIR)/L2/scripts/generate_kernels SPEC=./kernel/spec.json TOOLDIR=./_krnlgen
-```
-Here you use the L2 Data-Mover generator tool ($(XFLIB_DIR)/L2/scripts/generate_kernels). This tool uses the `kernel/spec.json` specification to write `kernel/mm2s_mp.cpp` and `kernel/s2mm_mp.cpp` HLS kernel source files.
-
-
-### Step 3: Compile HLS PL Kernels
-Following is an example of how the `mm2s_mp` kernel is compiled.
-```
-v++ -c                                                                 \
-    -t hw                                                              \
-    --platform xilinx_vck190_base_202410_1                             \
-    --save-temps --optimize 2                                          \
-    --hls.jobs 8 -I$(XFLIB_DIR)/L1/include                            \
-    -I$(XFLIB_DIR)/L1/include/hw                                      \
-    -I./kernel                                                         \
-    -k mm2s_mp                                                          \
-    --hls.clock 150000000:mm2s_mp                                       \
-    --temp_dir ./build/_x_temp.hw.xilinx_vck190_base_202410_1          \
-    --report_dir ./build/reports/_x.hw_emu.xilinx_vck190_base_202410_1 \
-    -o './build/_x_temp.hw_emu.xilinx_vck190_base_202410_1/mm2s_mp.xo'  \
-    ./kernel/mm2s_mp.cpp                                                 
-```
-The same compilation options are used to compile the `s2mm_mp`, `packet_sender`, and `packet_receiver` kernels.
 
 ## HLS PL Kernels
+
+<div align="center">
+    <img src="../../images/design2/dma.png" alt="dma" />
+</div>
+
 
 After coming up with 400 tile AI Engine design, the next step is the come up with the way to move data from DDR send it to the AI Engine. We do this by using the the AMD Vitis™ core development kit, to create kernel code in C++ meant to be accelerated on the FPGA. The kernel code is compiled by the Vitis Compiler (`v++ -c`) into kernel objects (XO). The following is a table describing each HLS PL kernel.
 
