@@ -18,13 +18,11 @@ The following AI Engine features are used in this design:
 
 ## fam_stage1() and conv_stage1() Kernel
 
-
-![alt text](../../images/design2/stage1.png)
-
 ### **FAM Processing (fam_stage1)**
+Review the `kernels/fam_stage1.cpp` file.
 - The `fam_stage1` function processes complex floating-point (cfloat) input data.
 - It applies a **256-point FFT** to chunks of 256 complex numbers.
-- The function performs **windowing**, **FFT transformation**, **stage 1 DC removal**, and **matrix transposition**.
+- The function performs **windowing**, **256-pt FFT**, **Downconversion**, and **matrix transposition**.
 - It processes two input buffers (`inputx0` and `inputx1`) and generates a single output buffer (`outputy`).
 - The function operates in a **block-based loop**, iterating over four data blocks for each input buffer.
 
@@ -33,6 +31,14 @@ The following AI Engine features are used in this design:
 - It writes the input data to two output streams (`outputy0` and `outputy1`).
 - The function uses **pipelined loop processing** to efficiently stream data.
 - Data is written incrementally in chunks of four complex elements per iteration.
+
+![alt text](../../images/design2/stage1.png)
+- **Input (`FAMDataIn_x`)**: These correspond to the input files fed into the **FAM stage**.
+- **FAM processing (`fam_stage1`)**: The first computational stage processes the data using FFT-based accumulation.
+- **Memory buffer**: Intermediate results are stored in **buffer** and then passed to the **CONV stage**.
+- **CONV processing (`conv_stage1`)**: The second computational stage streams the processed data to the output.
+- **Final output**: The data is finally written to the output stream.
+
 
 |name|number of 32-bit data values|
 | -------------|-----------|
