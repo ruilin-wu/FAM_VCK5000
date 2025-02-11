@@ -111,10 +111,20 @@ inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  c
     }
 }
 ```
-- `x1` and `x2` read **8 sets of float data** from **input array `px0`** respectively.
-- `coef1` and `coef2` read **8 sets of window factors** from **window coefficient array `window_factor1`**.
-- Then use `fpmul` to calculate **window weighted values** and store them in `po1`.
-- It should be noted that we save **window coefficient array `window_factor1`** in ```inc/parameters.h` file.
+- `x1` and `x2` read 8 sets of float data from input array `px0` respectively.
+- `coef1` and `coef2` read 8 sets of window factors from window coefficient array `window_factor1`**.
+- Then use `fpmul` to calculate window weighted values and store them in `po1`.
+- It should be noted that we save window coefficient array `window_factor1` in `inc/parameters.h` file.
+
+### 2.256-pt FFT
+Please refer to the `FFT_256pt` and `opt_cfloat_stage_256pt` functions in the `inc/fam_funcs.h` file. We actually call the `aie::fft_dit` class template in the [AIE API](https://www.xilinx.com/htmldocs/xilinx2023_1/aiengine_api/aie_api/doc/group__group__fft.html).
+
+
+- `x1` and `x2` read 8 sets of float data from input array `px0` respectively.
+- `coef1` and `coef2` read 8 sets of window factors from window coefficient array `window_factor1`**.
+- Then use `fpmul` to calculate window weighted values and store them in `po1`.
+- It should be noted that we save window coefficient array `window_factor1` in `inc/parameters.h` file.
+
 
 ## Next Steps
 
