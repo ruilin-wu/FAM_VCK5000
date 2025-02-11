@@ -64,12 +64,14 @@ Review the `kernels/fam_stage2.cpp` file.
 </div>
 
 
-### AI Engine Graph View
+
 
 ### AI Engine Array View
 
 
-
+<div align="center">
+    <img src="../../images/design2/stage2.png" alt="stage2" />
+</div>
 
 
 
