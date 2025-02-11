@@ -85,9 +85,10 @@ The diagram below shows the floor plan view of the AI Engine array. The design r
 
 ## (Optional) Detailed code explanation of each stage 
 In this section, I will explain in detail my thinking when designing each piece of code. In order to simplify the process, I used methods including pipelining, parallelization, and pre-calculation of parameters to improve efficiency.
+
 Review the `inc/fam_funcs.h` file.
 
-### Windowing
+### 1.Windowing
 ```
 inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  cfloat * restrict py0)
 {   
@@ -110,6 +111,10 @@ inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  c
     }
 }
 ```
+- `x1` and `x2` read **8 sets of float data** from **input array `px0`** respectively.
+- `coef1` and `coef2` read **8 sets of window factors** from **window coefficient array `window_factor1`**.
+- Then use `fpmul` to calculate **window weighted values** and store them in `po1`.
+- It should be noted that we save **window coefficient array `window_factor1`** in ```inc/parameters.h` file.
 
 ## Next Steps
 
