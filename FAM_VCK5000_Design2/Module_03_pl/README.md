@@ -15,36 +15,36 @@ As shown in figure below, the processing pipeline consists of three main compone
 - Stores raw input data.
 - Uses `AXI Master` interface with **512-bit wide bursts**.
 2. **dma_hls (Data Transfer via PL)**
-   - Reads `8 × 64-bit` input streams from DDR.
-   - Transfers data to AIE using AXI streams.
-   - Receives `128 × 64-bit` processed outputs from AIE.
-   - Packs data into `1 × 512-bit` wide streams and writes back to DDR.
+- Reads `8 × 64-bit` input streams from DDR.
+- Transfers data to AIE using AXI streams.
+- Receives `128 × 64-bit` processed outputs from AIE.
+- Packs data into `1 × 512-bit` wide streams and writes back to DDR.
 3. **AIE (FFT Accumulation Processing)**
-   - Processes `8 × 64-bit` input streams.
-   - Expands the data into `128 × 64-bit` output streams.
+- Processes `8 × 64-bit` input streams.
+- Expands the data into `128 × 64-bit` output streams.
 
 <div align="center">
     <img src="../../images/design2/dma_hls.png" alt="dma" />
 </div>
 
 
-### **Code explanation**
-#### **HLS Kernel: `dma_hls.cpp`**
+## **Code explanation**
+### **HLS Kernel: `dma_hls.cpp`**
 The `dma_hls` function is the top-level HLS kernel that performs:
 1. **Reading Input Data from DDR (`memin0` to `memin7`)**
-   - Uses `ap_uint<512>` to read **8 cfloat values** at once.
-   - Writes to **8 separate AXI streams (`FAMDataIn_0` to `FAMDataIn_7`)**.
+- Uses `ap_uint<512>` to read **8 cfloat values** at once.
+- Writes to **8 separate AXI streams (`FAMDataIn_0` to `FAMDataIn_7`)**.
 
 2. **AIE Computation (via AXI Streams)**
-   - Streams **input data to AI Engine** for FFT Accumulation Processing.
-   - Receives **128 output streams** from AI Engine.
+- Streams **input data to AI Engine** for FFT Accumulation Processing.
+- Receives **128 output streams** from AI Engine.
 
 3. **Writing Output Data to DDR (`memout`)**
-   - Reads **128 output streams (`FAMOut_0` to `FAMOut_127`)**.
-   - Packs data into `ap_uint<512>` to perform **high-bandwidth writes**.
-   - Uses loop optimizations for efficient memory access.
+- Reads **128 output streams (`FAMOut_0` to `FAMOut_127`)**.
+- Packs data into `ap_uint<512>` to perform **high-bandwidth writes**.
+- Uses loop optimizations for efficient memory access.
 
-#### **AXI Interface Configuration**
+### **AXI Interface Configuration**
 ```cpp
 #pragma HLS INTERFACE m_axi offset=slave bundle=gmem0 port=memin0 max_read_burst_length=16 num_read_outstanding=64
 #pragma HLS INTERFACE axis port=FAMDataIn_0
@@ -63,7 +63,6 @@ The `dma_hls` function is the top-level HLS kernel that performs:
 | **Input Data Rate**  | `8 × 64-bit @ 500MHz` |
 | **Output Data Rate** | `128 × 64-bit @ 500MHz` |
 | **Memory Write Rate** | `1 × 512-bit @ 500MHz` |
-| **Processing Latency** | `~19 cycles per batch` |
 
 ---
 
@@ -72,5 +71,5 @@ The `dma_hls` function is the top-level HLS kernel that performs:
 
 ## Next Steps
 
-After compiling the PL datamover kernels, you are ready to link the entire hardware design together in the next module, [Module 04 - Full System Design](../Module_04_full_system_design).
+After compiling the PL datamover kernels, we are ready to link the entire hardware design together in the next module, [Module 04 - Hardware Link](../Module_04_hw_link).
 
