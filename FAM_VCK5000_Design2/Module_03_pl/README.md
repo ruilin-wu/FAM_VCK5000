@@ -9,7 +9,7 @@ make all
 ```
 
 
-## HLS PL Kernels
+## HLS PL Kernel1s
 
 <div align="center">
     <img src="../../images/design2/dma.png" alt="dma" />
