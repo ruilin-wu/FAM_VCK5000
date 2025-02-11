@@ -193,7 +193,6 @@ inline __attribute__((always_inline))  void stage2_cm (cfloat * restrict px0, cf
         //chess_prepare_for_pipelining chess_loop_range(8,8) 
         chess_prepare_for_pipelining chess_flatten_loop 
     {
-        // 一次处理4组数据
         v4cfloat x1 = *pi0++;
         v4cfloat x2 = *pi1++;
         *po1++ = fpmul_nc(x1, x2);
@@ -205,7 +204,7 @@ inline __attribute__((always_inline))  void stage2_cm (cfloat * restrict px0, cf
 }
 ```
 
-
+- Performs **complex multiplication** on two input arrays (`px0`, `px1`) and stores the result in `py0`. Use the `fpmul_nc` function to perform conjugate multiplication
 
 
 
