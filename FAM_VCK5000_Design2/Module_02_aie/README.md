@@ -68,7 +68,7 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 
 - The "back-end" compute consists of 32 identical instances of a `fam_stage2()` kernel . 
 
-- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each `fam_stage2` processing unit performs **32-point FFT** and **Conjugate Multiplication**.
+- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each `fam_stage2` processing unit performs **Conjugate Multiplication** and **32-point FFT**.
 <div align="center">
     <img src="../../images/design2/Design.png" alt="Design" />
 </div>
@@ -119,12 +119,22 @@ inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  c
 ### 2.256-pt FFT
 Please refer to the `FFT_256pt` and `opt_cfloat_stage_256pt` functions in the `inc/fam_funcs.h` file. We actually call the `aie::fft_dit` class template in the [AIE API](https://www.xilinx.com/htmldocs/xilinx2023_1/aiengine_api/aie_api/doc/group__group__fft.html).
 
+`FFT_256pt` function uses **predefined rotation factor lookup table (`tw_table`)** to store the rotation factors (twiddle factors) required for FFT calculation.
+And call `opt_cfloat_stage_256pt()` 8 times to perform Radix-2 FFT transformation.
+Then swap the first 128 points and the last 128 points of the output data to achieve **spectral rearrangement** (move the DC component to the center). `opt_cfloat_stage_256pt()` calls `aie::fft_dit` for Radix-2 FFT calculation. After the calculation is completed, swap the buffer (`pingPong = 1 - pingPong`) to prepare for the next level of FFT calculation.
 
-- `x1` and `x2` read 8 sets of float data from input array `px0` respectively.
-- `coef1` and `coef2` read 8 sets of window factors from window coefficient array `window_factor1`**.
-- Then use `fpmul` to calculate window weighted values and store them in `po1`.
-- It should be noted that we save window coefficient array `window_factor1` in `inc/parameters.h` file.
+### 3.Downconversion
+Please refer to the `FFT_256pt` and `opt_cfloat_stage_256pt` functions in the `inc/fam_funcs.h` file. We actually call the `aie::fft_dit` class template in the [AIE API](https://www.xilinx.com/htmldocs/xilinx2023_1/aiengine_api/aie_api/doc/group__group__fft.html).
 
+### 4.Multiplication
+Please refer to the `FFT_256pt` and `opt_cfloat_stage_256pt` functions in the `inc/fam_funcs.h` file. We actually call the `aie::fft_dit` class template in the [AIE API](https://www.xilinx.com/htmldocs/xilinx2023_1/aiengine_api/aie_api/doc/group__group__fft.html).
+
+### 5.32-pt FFT
+Please refer to the `FFT_32pt` and `opt_cfloat_stage_32pt` functions in the `inc/fam_funcs.h` file. We actually call the `aie::fft_dit` class template in the [AIE API](https://www.xilinx.com/htmldocs/xilinx2023_1/aiengine_api/aie_api/doc/group__group__fft.html).
+
+The `FFT_32pt` function uses a **predefined rotation factor lookup table (`tw_table`)** to store the rotation factors (twiddle factors) required for FFT calculation.
+And calls `opt_cfloat_stage_32pt()` 5 times to perform Radix-2 FFT transformation.
+`opt_cfloat_stage_32pt()` calls `aie::fft_dit` for Radix-2 FFT calculation. After the calculation is completed, the buffer is exchanged (`pingPong = 1 - pingPong`) to prepare for the next level of FFT calculation.
 
 ## Next Steps
 
