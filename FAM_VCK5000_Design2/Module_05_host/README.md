@@ -7,7 +7,7 @@ make all
 ```
 
 ## **Overview**
-This host code implements a **host application** to interact with the **DMA HLS kernel** on an **AI Engine platform**. The host code:
+This `host.cpp` implements a **host application** to interact with the **DMA HLS kernel** on an **AI Engine platform**. The host code:
 - Loads input data from **local files** (`FAMDataIn_0.txt` to `FAMDataIn_7.txt`).
 - Transfers **8 input channels × 1024 cfloat** to the kernel.
 - Receives **128 output channels × 8192 cfloat** from the kernel.
@@ -29,9 +29,22 @@ This host code implements a **host application** to interact with the **DMA HLS 
 
 
 ## **Performance Results**
-After execution, the kernel performance is reported as follows:
+---
+
+To execute the **FAM kernel**, navigate to the **Module_05_host** directory and run the following command:
 
 ```sh
+cd Module_05_host
+make run
+```
+
+This command compiles and runs the **host application (`fam.exe`)**, which loads the **FAM kernel (`fam.xclbin`)** and executes it. The kernel processes **8 input channels × 1024 cfloat** and produces **128 output channels × 8192 cfloat**. 
+
+Upon execution, the following performance results were reported:
+
+```sh
+FAM_VCK5000_design2/Module_05_host$ make run
+./fam.exe ../build.hw/fam.xclbin
 Open the device...
 Load the xclbin: ../build.hw/fam.xclbin
 Get references to datamovers compute units
@@ -39,12 +52,13 @@ Get references to datamovers compute units
 [Info] Output BO size = 8388608 bytes (for 128×8192 cfloat)
 Launching Kernel...
 Kernel done.
-[Performance] Average execution time = 0.00133521 s
+[Performance] average time= 0.00132184 s
 [Performance] Input Data: 0.0625 MB
 [Performance] Output Data: 8 MB
 [Performance] Total Data: 8.0625 MB
-[Performance] Throughput: 6.03837 GB/s
-[Performance] GFLOPS: 3.92663 GFLOPS
+[Performance] Throughput: 6.09943 GB/s
+[Performance] GFLOPS: 3.96634 GFLOPS
+TEST PASS - Data saved in 128 files.
 ```
 
 
