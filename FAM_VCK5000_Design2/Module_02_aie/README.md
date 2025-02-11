@@ -16,15 +16,23 @@ The following AI Engine features are used in this design:
 * 1:128 broadcast stream
 * PL Kernels designed to support data move in AI Engine
 
-## fam_stage1 and conv_stage1 Kernel
+## fam_stage1() and conv_stage1() Kernel
 
 
 ![alt text](../../images/design2/stage1.png)
 
+### **FAM Processing (fam_stage1)**
+- The `fam_stage1` function processes complex floating-point (cfloat) input data.
+- It applies a **256-point FFT** to chunks of 256 complex numbers.
+- The function performs **windowing**, **FFT transformation**, **stage 1 DC removal**, and **matrix transposition**.
+- It processes two input buffers (`inputx0` and `inputx1`) and generates a single output buffer (`outputy`).
+- The function operates in a **block-based loop**, iterating over four data blocks for each input buffer.
 
-Review the `kernels/fam_stage1.cpp` and `kernels/conv_stage1.cpp` file. It contains the implementation of a single AI Engine kernel mapped to a single AI Engine tile called `nbody()`. This kernel takes in the `x y z vx vy vz m` values for 32 particles, computes the N-Body gravity equations for a single timestep, and outputs the new `x y z vx vy vz m` values for the 32 particles. This kernel takes in two inputs: `w_input_i` and `w_input_j`. The `w_input_i` window contains the `x y z vx vy vz m` floating point values for 32 particles. The `w_input_j` window contains the only `x y z m` floating-point values for the same 32 particles. This kernel produces one output: `w_output_i` which contains the new `x y z vx vy vz m` floating-point values for the 32 particles in the next timestep.  
-
-Review the `kernels/fam_stage1.cpp` and `kernels/conv_stage1.cpp` file. It contains the implementation of a single AI Engine kernel mapped to a single AI Engine tile called `nbody()`. This kernel takes in the `x y z vx vy vz m` values for 32 particles, computes the N-Body gravity equations for a single timestep, and outputs the new `x y z vx vy vz m` values for the 32 particles. This kernel takes in two inputs: `w_input_i` and `w_input_j`. The `w_input_i` window contains the `x y z vx vy vz m` floating point values for 32 particles. The `w_input_j` window contains the only `x y z m` floating-point values for the same 32 particles. This kernel produces one output: `w_output_i` which contains the new `x y z vx vy vz m` floating-point values for the 32 particles in the next timestep.  
+### **CONV Processing (conv_stage1)**
+- The `conv_stage1` function takes two **2048-element complex input buffers**.
+- It writes the input data to two output streams (`outputy0` and `outputy1`).
+- The function uses **pipelined loop processing** to efficiently stream data.
+- Data is written incrementally in chunks of four complex elements per iteration.
 
 |name|number of 32-bit data values|
 | -------------|-----------|
