@@ -29,7 +29,7 @@ This `host.cpp` implements a **host application** to interact with the **DMA HLS
 
 
 ## **Performance Results**
----
+
 
 To execute the **FAM kernel**, navigate to the **Module_05_host** directory and run the following command:
 
@@ -66,7 +66,6 @@ TEST PASS - Data saved in 128 files.
 - **`FAMOut_0.txt` → `FAMOut_127.txt`**:  
   Each file contains **8192 lines** of **complex float (cfloat)** values (`real imag` format).
 
----
 
 ## **Conclusion**
 This host application provides an efficient interface for data movement between DDR and the **DMA HLS kernel**. The achieved **throughput of 6.04 GB/s** and **3.93 GFLOPS** demonstrate the efficiency of this approach for **FFT Accumulation Method (FAM) processing**. And **Average execution time** is **0.00133521s**.
