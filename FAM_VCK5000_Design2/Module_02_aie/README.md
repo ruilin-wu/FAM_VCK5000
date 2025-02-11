@@ -133,6 +133,31 @@ e^{-\frac{j2\pi kmL}{N'}} \quad (1)
 $$
 
 Here, `m` is the Row index, `k` is the Column index, `N'` is 256, and `L` is 64.
+
+We found that the resulting complex exponential array is periodic, as follows:
+
+1. **Column-wise Periodicity**  
+   Let the matrix be denoted as **\(\mathbf{X} \in \mathbb{C}^{256 \times 32}\)**, where **\(X_{m,n}\)** represents the element at row \(m\) and column \(n\).  
+   Observations indicate that values repeat every four columns in a cyclic pattern:
+   \[
+   X_{m,n} = X_{m, n+4}, \quad \forall m \in \{1, \dots, 256\}, \quad \forall n \in \{1,2,3,4\}
+   \]
+   This pattern extends throughout the matrix, establishing a periodicity of **4 columns**:
+   \[
+   X_{m, n} = X_{m, n+4k}, \quad \forall k \in \mathbb{Z}, \quad 1 \leq n \leq 4, \quad n+4k \leq 32.
+   \]
+
+2. **Row-wise Periodicity**  
+   Within each column, data follows a periodic pattern of 4 rows:
+   \[
+   X_{m,n} = X_{m+4, n}, \quad \forall n \in \{1, \dots, 32\}, \quad \forall m \in \{1, \dots, 256-4\}.
+   \]
+   This implies a periodicity of **4 rows**, meaning:
+   \[
+   X_{m, n} = X_{m+4k, n}, \quad \forall k \in \mathbb{Z}, \quad 1 \leq m \leq 4, \quad m+4k \leq 256.
+   \]
+
+
 ```
 inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  cfloat * restrict py0)
 {   
