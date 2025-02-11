@@ -77,7 +77,7 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 
 
 ### AI Engine Array View
-
+The diagram below shows the floor plan view of the AI Engine array. The design requires resources from a $134$ rectangular region of the array. The nine leftmost and rightmost array columns are left unused in this case. 
 
 <div align="center">
     <img src="../../images/design2/AIE_graph.png" alt="AIE_graph" />
