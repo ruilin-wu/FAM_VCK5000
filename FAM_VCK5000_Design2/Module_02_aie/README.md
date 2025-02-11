@@ -136,79 +136,74 @@ Here, `m` is the Row index, `k` is the Column index, `N'` is 256, and `L` is 64.
 
 We found that the resulting complex exponential array is periodic, as follows:
 
-## 1. Column-wise Periodicity
+The matrix exhibits a 4-column cyclic structure, meaning only the first 4 columns are unique, and the rest are repetitions.
+The matrix exhibits a 4-row cyclic structure, meaning only the first 4 rows of each column are unique, and the remaining rows are repetitions.
+This means that the matrix can be represented using a 4 × 4 fundamental block that repeats across the entire 256 × 32 structure.
 
-Observations indicate that **column values** repeat every 4 columns. Formally:
-
-\[
-X_{m, n} = X_{m, n+4}, 
-\quad \forall m \in \{1, \dots, 256\}, 
-\quad \forall n \in \{1,2,3,4\}.
-\]
-
-Since this pattern extends across all valid column indices, we have:
-
-\[
-X_{m, n} = X_{m, n + 4k},
-\quad \forall k \in \mathbb{Z},
-\quad 1 \leq n \leq 4,
-\quad n + 4k \leq 32.
-\]
-
-Hence, the matrix has a **column periodicity of 4**.
-
-## 2. Row-wise Periodicity
-
-Within each column, the **row values** repeat every 4 rows. Mathematically:
-
-\[
-X_{m,n} = X_{m+4, n},
-\quad \forall n \in \{1, \dots, 32\},
-\quad \forall m \in \{1, \dots, 252\}.
-\]
-
-Extending this to all valid row indices:
-
-\[
-X_{m, n} = X_{m + 4k, n},
-\quad \forall k \in \mathbb{Z},
-\quad 1 \leq m \leq 4,
-\quad m + 4k \leq 256.
-\]
-
-Thus, the matrix has a **row periodicity of 4**.
+Therefore, in the `inc/parameters.h` file, we define four arrays `cfloat dc_coef1~4` to simplify the calculation.
 
 ```
-inline __attribute__((always_inline)) void window_fam (cfloat * restrict px0,  cfloat * restrict py0)
-{   
-    //static constexpr float* __restrict tw1 = (float*)window_factor;
-    v8float * restrict ptw1 = (v8float * restrict) window_factor1;
-    //v8float * restrict ptw2 = (v8float * restrict) (window_factor1 + 32/2);
-    v8float * restrict pi1 = (v8float * restrict) px0;
-    //v8float * restrict pi2 = (v8float * restrict) px0 + 32/2;
-    v8float * restrict po1 = (v8float * restrict) py0;
-    //v8float * restrict po2 = (v8float * restrict) py0 + 32/2;
-    for (int j = 0; j < 32; ++j)  
+inline __attribute__((always_inline)) void stage1_dc (cfloat * restrict px0, unsigned int index,  cfloat * restrict py0)
+{         
+    v4cfloat * restrict ptw;    
+    switch (index) {
+    case 0:
+        ptw = (v4cfloat * restrict) dc_coef1;
+        break;
+    case 1: 
+        ptw = (v4cfloat * restrict) dc_coef2;
+        break;
+    case 2: 
+        ptw = (v4cfloat * restrict) dc_coef3;
+        break;
+    case 3: 
+        ptw = (v4cfloat * restrict) dc_coef4;
+        break;
+    default:
+        return;  
+    }  
+    v4cfloat * restrict pi = (v4cfloat * restrict) px0;
+    v4cfloat * restrict po = (v4cfloat * restrict) py0;   
+    v4cfloat coef = *ptw;    
+    for (int j = 0; j < 32 ; ++j)  
         chess_prepare_for_pipelining chess_flatten_loop
-    {       
-        v8float x1 = *pi1++;
-        v8float x2 = *pi1++;      
-        v8float coef1 = *ptw1++;
-        v8float coef2 = *ptw1++;              
-        *po1++ = fpmul(x1, coef1);
-        *po1++ = fpmul(x2, coef2);        
+    {      
+        v4cfloat x1 = *pi++;
+        v4cfloat x2 = *pi++;                  
+        *po++ = fpmul(x1, coef);
+        *po++ = fpmul(x2, coef);        
     }
 }
 ```
-Please refer to the `FFT_256pt` and `opt_cfloat_stage_256pt` functions in the `inc/fam_funcs.h` file. We actually call the `aie::fft_dit` class template in the [AIE API](https://www.xilinx.com/htmldocs/xilinx2023_1/aiengine_api/aie_api/doc/group__group__fft.html).
+- The function `stage1_dc` performs **batch multiplication** of a 256 × 32 matrix using predefined 4-element coefficients.
+- It processes data in vectorized form (`v4cfloat`), multiplying 8 complex numbers per loop iteration.
 
 
 
-
-### IV.Multiplication
-Please refer to the `FFT_256pt` and `opt_cfloat_stage_256pt` functions in the `inc/fam_funcs.h` file. We actually call the `aie::fft_dit` class template in the [AIE API](https://www.xilinx.com/htmldocs/xilinx2023_1/aiengine_api/aie_api/doc/group__group__fft.html).
-
-
+### IV.Conjugate Multiplication
+```
+inline __attribute__((always_inline))  void stage2_cm (cfloat * restrict px0, cfloat * restrict px1,  cfloat * restrict py0)
+{   
+       
+    v4cfloat * restrict po1 = (v4cfloat * restrict) py0;   
+    v4cfloat * restrict pi0 = (v4cfloat * restrict) px0;   
+    v4cfloat * restrict pi1 = (v4cfloat * restrict) px1;
+    
+    for (int j = 0; j < 32/4/2 ; ++j)  // 19cycles
+        //chess_prepare_for_pipelining chess_loop_range(8,8) 
+        chess_prepare_for_pipelining chess_flatten_loop 
+    {
+        // 一次处理4组数据
+        v4cfloat x1 = *pi0++;
+        v4cfloat x2 = *pi1++;
+        *po1++ = fpmul_nc(x1, x2);
+        v4cfloat x3 = *pi0++;
+        v4cfloat x4 = *pi1++;      
+        *po1++ = fpmul_nc(x3, x4);
+        
+    }
+}
+```
 
 
 
