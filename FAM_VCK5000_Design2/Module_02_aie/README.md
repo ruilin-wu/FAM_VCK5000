@@ -16,9 +16,9 @@ The following AI Engine features are used in this design:
 * 1:128 broadcast stream
 * PL Kernels designed to support data move in AI Engine
 
-## fam_stage1() and conv_stage1() Kernel
+## Stage1 Graph
 
-### **FAM Processing (fam_stage1)**
+### **FAM Stage 1 Processing (fam_stage1() kernel)**
 Review the `kernels/fam_stage1.cpp` file.
 - The `fam_stage1` function processes complex floating-point (cfloat) input data.
 - It applies a **256-point FFT** to chunks of 256 complex numbers.
@@ -26,7 +26,8 @@ Review the `kernels/fam_stage1.cpp` file.
 - It processes two input buffers (`inputx0` and `inputx1`) and generates a single output buffer (`outputy`).
 - The function operates in a **block-based loop**, iterating over four data blocks for each input buffer.
 
-### **CONV Processing (conv_stage1)**
+### **CONV Processing (conv_stage1() kernel)**
+Review the `kernels/conv_stage1.cpp` file.
 - The `conv_stage1` function takes two **2048-element complex input buffers**.
 - It writes the input data to two output streams (`outputy0` and `outputy1`).
 - The function uses **pipelined loop processing** to efficiently stream data.
@@ -38,6 +39,20 @@ Review the `kernels/fam_stage1.cpp` file.
 - **Memory buffer**: Intermediate results are stored in **buffer** and then passed to the **CONV stage**.
 - **CONV processing (`conv_stage1`)**: The second computational stage streams the processed data to the output.
 - **Final output**: The data is finally written to the output stream.
+
+
+
+## Stage2 Graph
+![alt text](../../images/design2/stage2.png)
+### **FAM Stage 2 Processing (fam_stage2() kernel)**
+Review the `kernels/fam_stage2.cpp` file.
+- The `fam_stage2` function processes **complex floating point (cfloat) input streams** from two input sources (`inputx0`, `inputx1`).
+- The function reads **16-element vectorized complex numbers** from the input stream.
+- It uses the `stage2_cm` function to compute the result after conjugate multiplication.
+- A **32-point FFT (`FFT_32pt`)** is performed on the data after conjugate multiplication.
+- The transformed data is written to the output stream (`outputy`).
+
+
 
 
 |name|number of 32-bit data values|
