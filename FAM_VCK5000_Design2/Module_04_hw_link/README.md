@@ -31,3 +31,7 @@ sp=dma_hls_0.memout:MC_NOC0
 - **Streams connect** `dma_hls` and `ai_engine` through **AXI streams**.
 - **Memory mapped to NoC (`MC_NOC0`)** for optimized DDR bandwidth.
 
+
+## Next Steps
+
+After linking the PL and AIE kernels, we are ready to create a host application in the next module, [Module 05 - Host App](../Module_05_host).
