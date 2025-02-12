@@ -1,11 +1,11 @@
-## **Block Diagram**
-The following diagram illustrates the **high-throughput dataflow** between DDR, PL, and AI Engine:
+
+
+## **Connectivity Configuration**
 
 <div align="center">
     <img src="../../images/design3/dma_hls1.png" alt="dma" />
 </div>
 
-## **Connectivity Configuration**
 The following **`config.cfg`** file ensures proper **stream connections** between **DMA HLS, AI Engine, and DDR**:
 
 ```ini
@@ -49,7 +49,7 @@ sp=dma_hls_0.memout:MC_NOC0
 - **Streams are connected via AXI-Stream interfaces** between **DMA HLS, AI Engine, and DDR**.
 - **Memory controllers (`MC_NOC0`) are used** to efficiently access DDR.
 
-This **optimized connectivity** ensures **high-throughput data movement** between **memory, AI Engine, and processing logic**. 🚀
+
 
 
 ## Next Steps
