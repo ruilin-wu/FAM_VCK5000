@@ -21,12 +21,13 @@ The following AI Engine features are used in this design:
 <div align="center">
     <img src="../../images/design3/stage1.png" alt="FAM Stage 2" />
 </div>
+
 Review the `kernels/fam_stage1.cpp` file.
 - The `fam_stage1` function processes complex floating-point (cfloat) input data.
 - It applies a **256-point FFT** to chunks of 256 complex numbers.
 - The function performs **windowing**, **256-pt FFT**, **Downconversion**, and **matrix transposition**.
-- It processes two input buffers (`inputx0` and `inputx1`) and generates a single output buffer (`outputy`).
-- The function operates in a **block-based loop**, iterating over four data blocks for each input buffer.
+- It processes one input buffers (`inputx0`) and generates a single output buffer (`outputy`).
+- The function operates in a **block-based loop**, iterating over four data blocks for a input buffer.
 
 
 
@@ -39,7 +40,7 @@ Review the `kernels/fam_stage1.cpp` file.
 </div>
 
 Review the `kernels/fam_stage2.cpp` file.
-- The `fam_stage2` function processes **complex floating point (cfloat) input streams** from two input sources (`inputx0`, `inputx1`).
+- The `fam_stage2` function processes **complex floating point (cfloat) input streams** from one input sources (`inputx0`).
 - The function reads **16-element vectorized complex numbers** from the input stream.
 - It uses the `stage2_cm` function to compute the result after conjugate multiplication.
 - A **32-point FFT (`FFT_32pt`)** is performed on the data after conjugate multiplication.
@@ -50,18 +51,24 @@ Review the `kernels/fam_stage2.cpp` file.
 
 ## Design Overview
 The figure below shows block diagram of the FAM algorithm. It may be described as follows:
-* The "front-end" compute consists of 4 `fam_stage1()` kernel and 2 `conv_stage1()` kernel . 
+1. **Data is read from DDR and transferred to AIE (stage 1)**
+- The code defines the `readDDR_to_AIE1()` function to read 64-bit data from multiple DDR memory blocks (`memin0` to `memin15`) and write it to the input stream of AIE stage1 (`stage1_FAMDataIn_x`) through AXI-Stream.
+- `#pragma HLS PIPELINE II=1` is used to ensure that data can be efficiently pipelined and improve throughput.
 
-- 4 `fam_stage1` processing units (`fam_stage1_0` ~ `fam_stage1_3`) preprocess the data, such as **windowing, 256-pt FFT, Downconversion**, etc. `conv_stage1_0` and `conv_stage1_1` are responsible for merging the data streams and preparing the data to be transferred to **FAM Stage 2** for further processing.
+2. **Data is output from AIE (stage 1) and stored in the DDR intermediate buffer (`memtrans`)**
+- `readAIE1_to_memtrans()` reads the output stream of AIE stage1 and stores it in the intermediate buffer (`memtrans`).
+- Here, `#pragma HLS UNROLL factor=4` is used to increase parallelism and speed up data access.
 
+3. **Read data from intermediate buffer (`memtrans`) and transfer to AIE (stage 2)**
+- `plTranspose_to_aie2()` rearranges `memtrans` data and writes to the input stream of AIE stage2 (`stage2_FAMDataIn_x`).
+- The code uses `HLS PIPELINE` and `UNROLL` to further optimize data transfer efficiency.
 
-- We use a special method to handle the transposition of the matrix, please refer to the `kernels/conv_stage1.cpp` file for detailed description
+4. **Read data from AIE (stage 2) and write back to DDR**
+- `aie2_to_ddr()` reads the output stream of AIE stage2 (`stage2_FAMOut_x`), reassembles it into 512-bit data blocks, and finally writes `memout` to store in DDR.
+- Use `#pragma HLS PIPELINE II=1` to ensure that data can be stored in memory efficiently.
 
-- The "back-end" compute consists of 32 identical instances of a `fam_stage2()` kernel . 
-
-- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each `fam_stage2` processing unit performs **Conjugate Multiplication** and **32-point FFT**.
 <div align="center">
-    <img src="../../images/design2/Design.png" alt="Design" />
+    <img src="../../images/design3/Design.png" alt="Design" />
 </div>
 
 
