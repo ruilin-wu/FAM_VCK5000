@@ -1,6 +1,6 @@
 
 
-# The second design of FFT Accumulation Method using VCK5000 Versal Development Card
+# The first design of FFT Accumulation Method using VCK5000 Versal Development Card
 
 ***Version: Vitis 2022.2***
 
@@ -9,7 +9,7 @@
 This project is the second implementation of the FAM algorithm in the AI ​​Engine. It is a system-level design that uses AI Engine, PL, and PS resources to demonstrate the following capabilities:
 
 * Simulation of FAM using matlab software on an x86 machine.
-* Scalable AI Engine design that can utilize up to 134 AI Engine tiles
+* Scalable AI Engine design that can utilize up to 396 AI Engine tiles
 * AI Engine single-precision cfloat computation
 * Code-free PL HLS data mover kernel from AMD Vitis™ utility library
 * Host application for verifying AI Engine design data
@@ -104,7 +104,7 @@ $$
 Source: [CSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
 
 ### System Design Overview
-The FAM algorithm implementation is implemented on a VCK5000 board. It consists of a PL HLS data mover core (`dma_hls`) from the AMD Vitis utility library, and a 134-tile AI engine design. In addition, the design includes a host application that supports the entire design, verifies the data output by the AI ​​engine, and runs the design for multiple time steps.
+The FAM algorithm implementation is implemented on a VCK5000 board. It consists of a PL HLS data mover core (`dma_hls`) from the AMD Vitis utility library, and a 396-tile AI engine design. In addition, the design includes a host application that supports the entire design, verifies the data output by the AI ​​engine, and runs the design for multiple time steps.
 
 #### Data Flow
 * The host application stores the input data (8 txt files) in global memory (DDR) and opens the PL HLS core (running at 500MHz) and the AI ​​engine graph (running at 1GHz).
