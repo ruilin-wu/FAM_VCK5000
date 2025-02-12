@@ -57,9 +57,7 @@ Review the `kernels/fam_stage2.cpp` file.
 - The transformed data is written to the `conv_stage2()` kernel.
 
 ### **CONV Processing (conv_stage2() kernel)**
-<div align="center">
-    <img src="../../images/design1/stage2.png" alt="FAM Stage 2" />
-</div>
+
 
 Review the `kernels/conv_stage2.cpp` file.
 - The `conv_stage2` function processes **complex floating point (cfloat) input streams** from two input sources (`inputx0`, `inputx1`).
@@ -91,7 +89,7 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 The diagram below shows the floor plan view of the AI Engine array. The design requires resources from a $134$ rectangular region of the array. The nine leftmost and rightmost array columns are left unused in this case. 
 
 <div align="center">
-    <img src="../../images/design2/AIE_graph.png" alt="AIE_graph" />
+    <img src="../../images/design1/AIE_graph.png" alt="AIE_graph" />
 </div>
 
 ## (Optional) Detailed code explanation of each stage 
