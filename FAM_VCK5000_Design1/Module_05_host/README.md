@@ -43,7 +43,7 @@ This command compiles and runs the **host application (`fam.exe`)**, which loads
 Upon execution, the following performance results were reported:
 
 ```sh
-FAM_VCK5000_design2/Module_05_host$ make run
+FAM_VCK5000_design1/Module_05_host$ make run
 ./fam.exe ../build.hw/fam.xclbin
 Open the device...
 Load the xclbin: ../build.hw/fam.xclbin
@@ -51,13 +51,12 @@ Get references to datamovers compute units
 [Info] Input BO size per channel = 8192 bytes
 [Info] Output BO size = 8388608 bytes (for 128×8192 cfloat)
 Launching Kernel...
-Kernel done.
-[Performance] average time= 0.00132184 s
+Kernel done[Performance] average time= 0.00127787 s
 [Performance] Input Data: 0.0625 MB
 [Performance] Output Data: 8 MB
 [Performance] Total Data: 8.0625 MB
-[Performance] Throughput: 6.09943 GB/s
-[Performance] GFLOPS: 3.96634 GFLOPS
+[Performance] Throughput: 6.30934 GB/s
+[Performance] GFLOPS: 4.10284 GFLOPS
 TEST PASS - Data saved in 128 files.
 ```
 
@@ -68,5 +67,5 @@ TEST PASS - Data saved in 128 files.
 
 
 ## **Conclusion**
-This host application provides an efficient interface for data movement between DDR and the **DMA HLS kernel**. The achieved **throughput of 6.09943 GB/s** and **3.96634 GFLOPS** demonstrate the efficiency of this approach for **FFT Accumulation Method (FAM) processing**. And **Average execution time** is **0.00132184s**.
+This host application provides an efficient interface for data movement between DDR and the **DMA HLS kernel**. The achieved **throughput of 6.30934 GB/s** and **4.10284 GFLOPS** demonstrate the efficiency of this approach for **FFT Accumulation Method (FAM) processing**. And **Average execution time** is **0.00127787s**.
 

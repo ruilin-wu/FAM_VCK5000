@@ -12,8 +12,8 @@ make all
 The following AI Engine features are used in this design:
 
 * single precision floating-point compute of the FAM alogorithms 
-* 134 tile design with 128 parallel accelerators
-* 1:128 broadcast stream
+* 396 tile design with 128 parallel accelerators
+* 1:256 broadcast stream
 * PL Kernels designed to support data move in AI Engine
 
 ## Stage1 Graph
@@ -86,7 +86,7 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 
 
 ### AI Engine Array View
-The diagram below shows the floor plan view of the AI Engine array. The design requires resources from a $134$ rectangular region of the array. The nine leftmost and rightmost array columns are left unused in this case. 
+The diagram below shows the floor plan view of the AI Engine array. The design requires resources from a $396$ rectangular region of the array. Only 4 tiles are unused in this case. 
 
 <div align="center">
     <img src="../../images/design1/AIE_graph.png" alt="AIE_graph" />
