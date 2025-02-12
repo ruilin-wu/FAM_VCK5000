@@ -72,7 +72,7 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 - Finally, DDR SINK is responsible for storing **complete FAM calculation results**.
 
 <div align="center">
-    <img src="../../images/design3/Design.png" alt="Design" />
+    <img src="../../images/design3/Design1.png" alt="Design" />
 </div>
 
 

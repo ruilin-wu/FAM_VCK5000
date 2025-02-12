@@ -24,7 +24,7 @@ As shown in figure below, the processing pipeline consists of three main compone
 - Expands the data into `128 × 64-bit` output streams.
 
 <div align="center">
-    <img src="../../images/design2/dma_hls.png" alt="dma" />
+    <img src="../../images/design3/dma_hls.png" alt="dma" />
 </div>
 
 
