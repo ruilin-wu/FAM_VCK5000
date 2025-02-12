@@ -77,9 +77,9 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 
 - The "back-end" compute consists of 256 identical instances of a `fam_stage2()` kernel and 128 identical instances of a `conv_stage2()` kernel. 
 
-- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each processing unit has 2 `fam_stage2()` kernel and 1 `conv_stage2()` kernel. They performs **Conjugate Multiplication** and **32-point FFT**.
+- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each processing unit has 2 `fam_stage2()` kernel and 1 `conv_stage2()` kernel. They performs **Conjugate Multiplication**, **32-point FFT** and output the data.
 <div align="center">
-    <img src="../../images/design1/Design.png" alt="Design" />
+    <img src="../../images/design1/Design1.png" alt="Design" />
 </div>
 
 
