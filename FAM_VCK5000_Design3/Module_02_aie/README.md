@@ -18,6 +18,9 @@ The following AI Engine features are used in this design:
 ## Stage1 Graph
 
 ### **FAM Stage 1 Processing (fam_stage1() kernel)**
+<div align="center">
+    <img src="../../images/design3/stage1.png" alt="FAM Stage 2" />
+</div>
 Review the `kernels/fam_stage1.cpp` file.
 - The `fam_stage1` function processes complex floating-point (cfloat) input data.
 - It applies a **256-point FFT** to chunks of 256 complex numbers.
@@ -27,20 +30,12 @@ Review the `kernels/fam_stage1.cpp` file.
 
 
 
-![alt text](../../images/design2/stage1.png)
-- **Input (`FAMDataIn_x`)**: These correspond to the input files fed into the **FAM stage**.
-- **FAM processing (`fam_stage1`)**: The first computational stage processes the data using FFT-based accumulation.
-- **Memory buffer**: Intermediate results are stored in **buffer** and then passed to the **CONV stage**.
-- **CONV processing (`conv_stage1`)**: The second computational stage streams the processed data to the output.
-- **Final output**: The data is finally written to the output stream.
-
-
 
 ## Stage2 Graph
 
 ### **FAM Stage 2 Processing (fam_stage2() kernel)**
 <div align="center">
-    <img src="../../images/design2/stage2.png" alt="FAM Stage 2" />
+    <img src="../../images/design3/stage2.png" alt="FAM Stage 2" />
 </div>
 
 Review the `kernels/fam_stage2.cpp` file.
@@ -49,6 +44,8 @@ Review the `kernels/fam_stage2.cpp` file.
 - It uses the `stage2_cm` function to compute the result after conjugate multiplication.
 - A **32-point FFT (`FFT_32pt`)** is performed on the data after conjugate multiplication.
 - The transformed data is written to the output stream (`outputy`).
+
+
 
 
 ## Design Overview
