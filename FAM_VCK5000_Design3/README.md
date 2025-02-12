@@ -9,7 +9,7 @@
 This project is the second implementation of the FAM algorithm in the AI ​​Engine. It is a system-level design that uses AI Engine, PL, and PS resources to demonstrate the following capabilities:
 
 * Simulation of FAM using matlab software on an x86 machine.
-* Scalable AI Engine design that can utilize up to 134 AI Engine tiles
+* Scalable AI Engine design that can utilize up to 144 AI Engine tiles
 * AI Engine single-precision cfloat computation
 * Code-free PL HLS data mover kernel from AMD Vitis™ utility library
 * Host application for verifying AI Engine design data
@@ -104,20 +104,17 @@ $$
 Source: [CSP Estimators: The FFT Accumulation Method](https://cyclostationary.blog/2018/06/01/csp-estimators-the-fft-accumulation-method/)
 
 ### System Design Overview
-The FAM algorithm implementation is implemented on a VCK5000 board. It consists of a PL HLS data mover core (`dma_hls`) from the AMD Vitis utility library, and a 134-tile AI engine design. In addition, the design includes a host application that supports the entire design, verifies the data output by the AI ​​engine, and runs the design for multiple time steps.
+The FAM algorithm implementation is implemented on a VCK5000 board. It consists of a PL HLS data mover core (`dma_hls`) from the AMD Vitis utility library, and a 144-tile AI engine design. In addition, the design includes a host application that supports the entire design, verifies the data output by the AI ​​engine, and runs the design for multiple time steps.
 
 #### Data Flow
-* The host application stores the input data (8 txt files) in global memory (DDR) and opens the PL HLS core (running at 500MHz) and the AI ​​engine graph (running at 1GHz).
-* Data is moved from DDR to the multi-channel HLS data mover core `dma_hls`.
 
-* The AI ​​engine graph sends the input data to the 8 `FAMDataIn_i` ports in the AI ​​engine. The 8 `FAMDataIn_i` ports connect to the 4 cores that handle the first stage of the FAM algorithm (windowing + downconversion + 256 pt FFT). These 4 cores will connect to the 2 cores that will hold the final results of the first stage.
-* These 2 cores will be used to broadcast data to the 128 cores that handle the second stage of the FAM algorithm (Conjugate multiplication + 32pt FFT) and send the results out of the AI ​​Engine graph.
-
-* The `dma_hls` 128-channel HLS data mover core receives the `FAMOut_i` data and writes it to the global memory (DDR). Here, the data movement switches from AXI-Stream to AXI-MM.
-
-* Then, depending on the host application, the new output data is read and compared to the expected data, and the AI ​​Engine will run another time step.
-
-*Note:* The entire design is a compute-bound problem, which means we are limited by the speed at which the AI ​​Engine tiles can compute. This is not a memory-bound design.
+* Multiple `memin` memory channels read 64-bit data through `readDDR_to_AIE1()` and write it to the input stream of **AIE Stage1**.
+* Data enters AIE and performs the first stage FFT Accumulation Method (FAM) calculation, and outputs to `stage1_FAMOut` after processing.
+* `readAIE1_to_memtrans()` reads data from AIE Stage1 and stores it in `memtrans` as a transit storage on the PL side.
+* `plTranspose_to_aie2()` reorganizes the data in `memtrans` and writes it to **AIE Stage2** for further calculation.
+* AIE Stage2 performs the second round of FFT calculation and outputs the result to `stage2_FAMOut`.
+* `aie2_to_ddr()` reads the data calculated by AIE Stage2, packages it into 512-bit and writes it back to `memout`.
+* `phase1()` processes **DDR -> AIE1 -> PL**, `phase2()` processes **PL -> AIE2 -> DDR**, and finally forms a complete AIE calculation pipeline.
 
 ## Where We're Headed ...  
 Complete modules 01-05 in the following order:
@@ -128,10 +125,10 @@ The module shows a matlab implementation of the FAM and execution time to run th
 [Read more ...](Module_01_matlab_sim)
 
 ### Module 02 - AI Engine Design
-This module presents the final 134 tile AI Engine design:
+This module presents the final 144 tile AI Engine design:
 
-* The `stage1_graph_x2` system with 4 `fam_stage1()` cores and 2 `conv_stage1()` cores is used to calculate and store the results of the first stage
-* The `stage2_graph_x128` system with 128 `fam_stage2()` cores is used to receive data from the first stage and output data from the second stage
+* The `ssr_stage1_graph` system with 16 `fam_stage1()` cores is used to calculate and send the results of the first stage
+* The `ssr_stage2_graph` system with 128 `fam_stage2()` cores is used to receive data from the first stage and output data from the second stage
 * Calling the AI ​​Engine Compiler
 
 [Read more...](Module_02_aie)
@@ -152,13 +149,13 @@ This module shows how to link the AI Engine design and PL kernels together.
 ### Module 05 - Host Software
 This module presents the host software that enables the entire design:
 * Create a functional host application that compares AI Engine output data to golden data
-* Create a C++ N-Body Simulator to profile and compare performance between the A72 processor and AI Engine
+
 * Create a host application that runs the system design for multiple timesteps and create animation data for post-processing
 
 [Read more...](Module_05_host)
 
 
-Modules_01-05 builds walks through building the final 134 Compute Unit design. 
+Modules_01-05 builds walks through building the final 144 Compute Unit design. 
 
 
 

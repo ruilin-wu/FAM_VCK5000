@@ -12,8 +12,7 @@ make all
 The following AI Engine features are used in this design:
 
 * single precision floating-point compute of the FAM alogorithms 
-* 134 tile design with 128 parallel accelerators
-* 1:128 broadcast stream
+* 128 tile design with 128 parallel accelerators
 * PL Kernels designed to support data move in AI Engine
 
 ## Stage1 Graph
@@ -26,12 +25,7 @@ Review the `kernels/fam_stage1.cpp` file.
 - It processes two input buffers (`inputx0` and `inputx1`) and generates a single output buffer (`outputy`).
 - The function operates in a **block-based loop**, iterating over four data blocks for each input buffer.
 
-### **CONV Processing (conv_stage1() kernel)**
-Review the `kernels/conv_stage1.cpp` file.
-- The `conv_stage1` function takes two **2048-element complex input buffers**.
-- It writes the input data to two output streams (`outputy0` and `outputy1`).
-- The function uses **pipelined loop processing** to efficiently stream data.
-- Data is written incrementally in chunks of four complex elements per iteration.
+
 
 ![alt text](../../images/design2/stage1.png)
 - **Input (`FAMDataIn_x`)**: These correspond to the input files fed into the **FAM stage**.
