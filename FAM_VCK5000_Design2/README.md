@@ -152,7 +152,6 @@ This module shows how to link the AI Engine design and PL kernels together.
 ### Module 05 - Host Software
 This module presents the host software that enables the entire design:
 * Create a functional host application that compares AI Engine output data to golden data
-* Create a C++ N-Body Simulator to profile and compare performance between the A72 processor and AI Engine
 * Create a host application that runs the system design for multiple timesteps and create animation data for post-processing
 
 [Read more...](Module_05_host)

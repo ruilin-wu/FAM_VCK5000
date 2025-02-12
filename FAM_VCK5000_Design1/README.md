@@ -111,7 +111,7 @@ The FAM algorithm implementation is implemented on a VCK5000 board. It consists 
 * Data is moved from DDR to the multi-channel HLS data mover core `dma_hls`.
 
 * The AI ​​engine graph sends the input data to the 8 `FAMDataIn_i` ports in the AI ​​engine. The 8 `FAMDataIn_i` ports connect to the 4 cores that handle the first stage of the FAM algorithm (windowing + downconversion + 256 pt FFT). These 4 cores will connect to the 2 cores that will hold the final results of the first stage.
-* These 2 cores will be used to broadcast data to the 128 cores that handle the second stage of the FAM algorithm (Conjugate multiplication + 32pt FFT) and send the results out of the AI ​​Engine graph.
+* These 2 cores will be used to broadcast data to the 256 cores that handle the second stage of the FAM algorithm (Conjugate multiplication + 32pt FFT) and send the results to the 128 `conv_stage2() kernel` to send the result.
 
 * The `dma_hls` 128-channel HLS data mover core receives the `FAMOut_i` data and writes it to the global memory (DDR). Here, the data movement switches from AXI-Stream to AXI-MM.
 
@@ -131,7 +131,7 @@ The module shows a matlab implementation of the FAM and execution time to run th
 This module presents the final 134 tile AI Engine design:
 
 * The `stage1_graph_x2` system with 4 `fam_stage1()` cores and 2 `conv_stage1()` cores is used to calculate and store the results of the first stage
-* The `stage2_graph_x128` system with 128 `fam_stage2()` cores is used to receive data from the first stage and output data from the second stage
+* The `stage2_graph_x3_x128` system with 256 `fam_stage2()` cores and 128 `conv_stage2()` cores is used to receive data from the first stage and output data from the second stage.
 * Calling the AI ​​Engine Compiler
 
 [Read more...](Module_02_aie)
@@ -152,13 +152,12 @@ This module shows how to link the AI Engine design and PL kernels together.
 ### Module 05 - Host Software
 This module presents the host software that enables the entire design:
 * Create a functional host application that compares AI Engine output data to golden data
-* Create a C++ N-Body Simulator to profile and compare performance between the A72 processor and AI Engine
 * Create a host application that runs the system design for multiple timesteps and create animation data for post-processing
 
 [Read more...](Module_05_host)
 
 
-Modules_01-05 builds walks through building the final 134 Compute Unit design. 
+Modules_01-05 builds walks through building the final 396 Compute Unit design. 
 
 
 
