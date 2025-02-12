@@ -51,21 +51,25 @@ Review the `kernels/fam_stage2.cpp` file.
 
 ## Design Overview
 The figure below shows block diagram of the FAM algorithm. It may be described as follows:
-1. **Data is read from DDR and transferred to AIE (stage 1)**
-- The code defines the `readDDR_to_AIE1()` function to read 64-bit data from multiple DDR memory blocks (`memin0` to `memin15`) and write it to the input stream of AIE stage1 (`stage1_FAMDataIn_x`) through AXI-Stream.
-- `#pragma HLS PIPELINE II=1` is used to ensure that data can be efficiently pipelined and improve throughput.
+## **1. Data is read from DDR and transferred to AIE (Stage 1)**
+- DDR transfers data via **8 × 64-bit streams @ 500MHz**, which means that data is transferred to PL (FPGA programmable logic) at 500MHz in the form of 8 64-bit parallel streams.
+- **PL transfers data to AIE (AI Engine)** via AXI-Stream interface and writes **stage1_FAMDataIn0~15**, which means:
+- A total of **16 parallel data streams** enter AIE for the first stage calculation.
+- These data are used by AIE to perform FFT related calculations.
 
-2. **Data is output from AIE (stage 1) and stored in the DDR intermediate buffer (`memtrans`)**
-- `readAIE1_to_memtrans()` reads the output stream of AIE stage1 and stores it in the intermediate buffer (`memtrans`).
-- Here, `#pragma HLS UNROLL factor=4` is used to increase parallelism and speed up data access.
+## **2. After AIE (Stage 1) calculations, data is returned to PL**
 
-3. **Read data from intermediate buffer (`memtrans`) and transfer to AIE (stage 2)**
-- `plTranspose_to_aie2()` rearranges `memtrans` data and writes to the input stream of AIE stage2 (`stage2_FAMDataIn_x`).
-- The code uses `HLS PIPELINE` and `UNROLL` to further optimize data transfer efficiency.
+- **After receiving these data, PL stores them in the DDR intermediate buffer (`memtrans`)**.
+- This involves **data format conversion and data re-arrangement (Transpose)** to ensure that the data is transmitted to AIE (Stage 2) in the appropriate format.
 
-4. **Read data from AIE (stage 2) and write back to DDR**
-- `aie2_to_ddr()` reads the output stream of AIE stage2 (`stage2_FAMOut_x`), reassembles it into 512-bit data blocks, and finally writes `memout` to store in DDR.
-- Use `#pragma HLS PIPELINE II=1` to ensure that data can be stored in memory efficiently.
+## **3. PL reads intermediate data (`memtrans`) and transfers it to AIE (stage 2)**
+- **PL reads `memtrans`** and converts it into **127 × 64-bit streams @ 500MHz** format and sends it to **stage2_FAMDataIn0~127**.
+- Description **AIE (stage 2) accepts 127 parallel data streams** for calculation, which is a larger parallel calculation than the first stage.
+
+## **4. After AIE (stage 2) calculation, data returns to PL and writes back to DDR**
+- **After AIE (stage 2) calculation is completed, data returns to PL through `stage2_FAMDataOut0~127`**.
+- PL **reassembles this data and writes it to DDR SINK in the form of 127 × 64-bit streams**.
+- Finally, DDR SINK is responsible for storing **complete FAM calculation results**.
 
 <div align="center">
     <img src="../../images/design3/Design.png" alt="Design" />
