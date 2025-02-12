@@ -66,7 +66,7 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 
 - We use a special method to handle the transposition of the matrix, please refer to the `kernels/conv_stage1.cpp` file for detailed description
 
-- The "back-end" compute consists of 32 identical instances of a `fam_stage2()` kernel . 
+- The "back-end" compute consists of 128 identical instances of a `fam_stage2()` kernel . 
 
 - There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each `fam_stage2` processing unit performs **Conjugate Multiplication** and **32-point FFT**.
 <div align="center">

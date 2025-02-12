@@ -46,7 +46,7 @@ Review the `kernels/conv_stage1.cpp` file.
 
 ### **FAM Stage 2 Processing (fam_stage2() kernel)**
 <div align="center">
-    <img src="../../images/design2/stage2.png" alt="FAM Stage 2" />
+    <img src="../../images/design1/stage2.png" alt="FAM Stage 2" />
 </div>
 
 Review the `kernels/fam_stage2.cpp` file.
@@ -54,7 +54,18 @@ Review the `kernels/fam_stage2.cpp` file.
 - The function reads **16-element vectorized complex numbers** from the input stream.
 - It uses the `stage2_cm` function to compute the result after conjugate multiplication.
 - A **32-point FFT (`FFT_32pt`)** is performed on the data after conjugate multiplication.
-- The transformed data is written to the output stream (`outputy`).
+- The transformed data is written to the `conv_stage2()` kernel.
+
+### **CONV Processing (conv_stage2() kernel)**
+<div align="center">
+    <img src="../../images/design1/stage2.png" alt="FAM Stage 2" />
+</div>
+
+Review the `kernels/conv_stage2.cpp` file.
+- The `conv_stage2` function processes **complex floating point (cfloat) input streams** from two input sources (`inputx0`, `inputx1`).
+- The function reads **16-element vectorized complex numbers** from the input stream.
+- The transformed from `fam_stage2()` kernel is written to the output stream (`outputy`).
+
 
 
 ## Design Overview
@@ -66,11 +77,11 @@ The figure below shows block diagram of the FAM algorithm. It may be described a
 
 - We use a special method to handle the transposition of the matrix, please refer to the `kernels/conv_stage1.cpp` file for detailed description
 
-- The "back-end" compute consists of 32 identical instances of a `fam_stage2()` kernel . 
+- The "back-end" compute consists of 256 identical instances of a `fam_stage2()` kernel and 128 identical instances of a `conv_stage2()` kernel. 
 
-- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each `fam_stage2` processing unit performs **Conjugate Multiplication** and **32-point FFT**.
+- There are 128 `fam_stage2` processing units (`fam_stage2_0` ~ `fam_stage2_127`). Each processing unit has 2 `fam_stage2()` kernel and 1 `conv_stage2()` kernel. They performs **Conjugate Multiplication** and **32-point FFT**.
 <div align="center">
-    <img src="../../images/design2/Design.png" alt="Design" />
+    <img src="../../images/design1/Design.png" alt="Design" />
 </div>
 
 
