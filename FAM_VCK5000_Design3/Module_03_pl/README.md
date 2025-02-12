@@ -11,17 +11,14 @@ make all
 
 ## HLS PL Kernel
 As shown in figure below, the processing pipeline consists of three main components:
-1. **DDR (Memory Storage)**
-- Stores raw input data.
-- Uses `AXI Master` interface with **512-bit wide bursts**.
-2. **dma_hls (Data Transfer via PL)**
-- Reads `8 × 64-bit` input streams from DDR.
-- Transfers data to AIE using AXI streams.
-- Receives `128 × 64-bit` processed outputs from AIE.
-- Packs data into `1 × 512-bit` wide streams and writes back to DDR.
-3. **AIE (FFT Accumulation Processing)**
-- Processes `8 × 64-bit` input streams.
-- Expands the data into `128 × 64-bit` output streams.
+
+- **DDR is used as the data source** to store input data `in_bohdl0~15`, and the data is transmitted to PL (FPGA programmable logic) through **16 × 64-bit streams @ 500MHz**.
+- **PL transmits data to AIE through AXI-Stream**, and inputs the data to `stage1_FAMDataIn0~15` for the first stage calculation.
+- **After AIE (stage 1) calculation is completed**, the result data `stage1_FAMOut0~15` is transmitted back to PL.
+- **PL stores the first stage calculation result in `trans_bohdl`** of DDR as an intermediate buffer.
+- **PL reads `trans_bohdl` and reformats the data**, converting it into **128 × 64-bit streams @ 500MHz**, and then transmits it to AIE (stage 2) `stage2_FAMDataIn0~127`.
+- **After AIE (stage 2) calculation**, output `stage2_FAMOut_0~127` is sent back to PL.
+- **PL writes the second stage calculation result to DDR (`out_bohdl`)** for further storage or transmission.
 
 <div align="center">
     <img src="../../images/design3/dma_hls.png" alt="dma" />
