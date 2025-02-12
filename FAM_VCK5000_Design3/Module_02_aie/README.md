@@ -51,22 +51,22 @@ Review the `kernels/fam_stage2.cpp` file.
 
 ## Design Overview
 The figure below shows block diagram of the FAM algorithm. It may be described as follows:
-## **1. Data is read from DDR and transferred to AIE (Stage 1)**
+### **1. Data is read from DDR and transferred to AIE (Stage 1)**
 - DDR transfers data via **8 × 64-bit streams @ 500MHz**, which means that data is transferred to PL (FPGA programmable logic) at 500MHz in the form of 8 64-bit parallel streams.
 - **PL transfers data to AIE (AI Engine)** via AXI-Stream interface and writes **stage1_FAMDataIn0~15**, which means:
 - A total of **16 parallel data streams** enter AIE for the first stage calculation.
 - These data are used by AIE to perform FFT related calculations.
 
-## **2. After AIE (Stage 1) calculations, data is returned to PL**
+### **2. After AIE (Stage 1) calculations, data is returned to PL**
 
 - **After receiving these data, PL stores them in the DDR intermediate buffer (`memtrans`)**.
 - This involves **data format conversion and data re-arrangement (Transpose)** to ensure that the data is transmitted to AIE (Stage 2) in the appropriate format.
 
-## **3. PL reads intermediate data (`memtrans`) and transfers it to AIE (stage 2)**
+### **3. PL reads intermediate data (`memtrans`) and transfers it to AIE (stage 2)**
 - **PL reads `memtrans`** and converts it into **127 × 64-bit streams @ 500MHz** format and sends it to **stage2_FAMDataIn0~127**.
 - Description **AIE (stage 2) accepts 127 parallel data streams** for calculation, which is a larger parallel calculation than the first stage.
 
-## **4. After AIE (stage 2) calculation, data returns to PL and writes back to DDR**
+### **4. After AIE (stage 2) calculation, data returns to PL and writes back to DDR**
 - **After AIE (stage 2) calculation is completed, data returns to PL through `stage2_FAMDataOut0~127`**.
 - PL **reassembles this data and writes it to DDR SINK in the form of 127 × 64-bit streams**.
 - Finally, DDR SINK is responsible for storing **complete FAM calculation results**.
