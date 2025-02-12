@@ -21,38 +21,29 @@ As shown in figure below, the processing pipeline consists of three main compone
 - **PL writes the second stage calculation result to DDR (`out_bohdl`)** for further storage or transmission.
 
 <div align="center">
-    <img src="../../images/design3/dma_hls.png" alt="dma" />
+    <img src="../../images/design3/dma_hls1.png" alt="dma" />
 </div>
 
 
 ## **Code explanation**
 ### **HLS Kernel: `dma_hls.cpp`**
-The `dma_hls` function is the top-level HLS kernel that performs:
-1. **Reading Input Data from DDR (`memin0` to `memin7`)**
-- Uses `ap_uint<512>` to read **8 cfloat values** at once.
-- Writes to **8 separate AXI streams (`FAMDataIn_0` to `FAMDataIn_7`)**.
 
-2. **AIE Computation (via AXI Streams)**
-- Streams **input data to AI Engine** for FFT Accumulation Processing.
-- Receives **128 output streams** from AI Engine.
+1. **Data is read from DDR and transferred to AIE (stage 1)**
+- The code defines the `readDDR_to_AIE1()` function to read 64-bit data from multiple DDR memory blocks (`memin0` to `memin15`) and write it to the input stream of AIE stage1 (`stage1_FAMDataIn_x`) through AXI-Stream.
+- `#pragma HLS PIPELINE II=1` is used to ensure that data can be efficiently pipelined and improve throughput.
 
-3. **Writing Output Data to DDR (`memout`)**
-- Reads **128 output streams (`FAMOut_0` to `FAMOut_127`)**.
-- Packs data into `ap_uint<512>` to perform **high-bandwidth writes**.
-- Uses loop optimizations for efficient memory access.
+2. **Data is output from AIE (stage 1) and stored in the DDR intermediate buffer (`memtrans`)**
+- `readAIE1_to_memtrans()` reads the output stream of AIE stage1 and stores it in the intermediate buffer (`memtrans`).
+- Here, `#pragma HLS UNROLL factor=4` is used to increase parallelism and speed up data access.
 
-### **AXI Interface Configuration**
-```cpp
-#pragma HLS INTERFACE m_axi offset=slave bundle=gmem0 port=memin0 max_read_burst_length=16 num_read_outstanding=64
-#pragma HLS INTERFACE axis port=FAMDataIn_0
-#pragma HLS INTERFACE axis port=FAMOut_0
-#pragma HLS PIPELINE II=1
-```
-- Uses **AXI Master (`m_axi`)** for memory accesses.
-- Uses **AXI Stream (`axis`)** for fast data movement.
-- Applies **loop pipelining** to maximize throughput.
+3. **Read data from intermediate buffer (`memtrans`) and transfer to AIE (stage 2)**
+- `plTranspose_to_aie2()` rearranges `memtrans` data and writes to the input stream of AIE stage2 (`stage2_FAMDataIn_x`).
+- The code uses `HLS PIPELINE` and `UNROLL` to further optimize data transfer efficiency.
 
----
+4. **Read data from AIE (stage 2) and write back to DDR**
+- `aie2_to_ddr()` reads the output stream of AIE stage2 (`stage2_FAMOut_x`), reassembles it into 512-bit data blocks, and finally writes `memout` to store in DDR.
+- Use `#pragma HLS PIPELINE II=1` to ensure that data can be stored in memory efficiently.
+
 
 ### **Performance Metrics**
 | Metric               | Value                 |
